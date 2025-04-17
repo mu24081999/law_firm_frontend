@@ -1,0 +1,14 @@
+.react-tel-input .flag-dropdown {
+  border-radius: 10px 0 0 10px;
+  background: "white";
+}
+.react-tel-input .flag-dropdown.open .selected-flag {
+  border-radius: 10px 0 0 10px;
+  background: "#D9D9D9";
+}
+.react-tel-input .flag-dropdown.open {
+  background: transparent;
+  z-index: 2;
+  /* background: #fff; */
+  border-radius: 10px 0 0 10px;
+}

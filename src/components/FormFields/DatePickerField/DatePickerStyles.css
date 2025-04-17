@@ -1,0 +1,23 @@
+/* DatePickerStyles.css */
+
+.react-datepicker {
+  display: flex;
+  width: 100%;
+}
+.react-datepicker__header {
+  background-color: #000000;
+}
+.react-datepicker__current-month {
+  color: white;
+}
+.react-datepicker-time__header {
+  color: white;
+}
+.react-datepicker__day-name {
+  color: white;
+}
+.react-datepicker__current {
+  color: white;
+}
+
+/* Optional: Customize other styles as needed */
