@@ -36,22 +36,27 @@ function LawFirmLayout({ children }) {
       icon: <BriefcaseIcon className="w-5 h-5" />,
     },
     {
+      name: "Services Requests",
+      path: "/lawfirm/service-requests",
+      icon: <BriefcaseIcon className="w-5 h-5" />,
+    },
+    {
       name: "Template Editor",
       path: "/lawfirm/template",
       icon: <DocumentTextIcon className="w-5 h-5" />,
     },
-    // {
-    //   name: "Contacts",
-    //   path: "/lawfirm/contacts",
-    //   icon: <UserPlusIcon className="w-5 h-5" />,
-    // },
+    {
+      name: "Team Chat",
+      path: "/lawfirm/team-chat",
+      icon: <UserPlusIcon className="w-5 h-5" />,
+    },
     {
       name: "Team",
       path: "/lawfirm/team",
       icon: <UsersIcon className="w-5 h-5" />,
     },
     {
-      name: "Chat",
+      name: "Client Chat",
       path: "/lawfirm/chat",
       icon: <ChatBubbleLeftRightIcon className="w-5 h-5" />,
     },

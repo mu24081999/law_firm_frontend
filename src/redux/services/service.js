@@ -104,29 +104,28 @@ export const updateMultiServiceFields = (token, data) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
-export const getAllServiceRequestsByUserId =
-  (token, userId) => async (dispatch) => {
-    try {
-      dispatch(serviceRequestLoading());
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          "x-access-token": token,
-        },
-      };
-      const response = await axios.get(
-        `${backendURL}/service-requests/user/${userId}`,
-        config
-      );
-      if (!response.data.statusCode === 200) {
-        dispatch(invalidRequest(response.data.message));
-        return toast.error(response.data.message);
-      }
-      dispatch(getServiceRequests(response.data.data.requests));
-    } catch (e) {
-      dispatch(invalidRequest(e.message));
+export const getAllServiceRequests = (token, query) => async (dispatch) => {
+  try {
+    dispatch(serviceRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.get(
+      `${backendURL}/service-requests?${query && query}`,
+      config
+    );
+    if (!response.data.statusCode === 200) {
+      dispatch(invalidRequest(response.data.message));
+      return toast.error(response.data.message);
     }
-  };
+    dispatch(getServiceRequests(response.data.data.requests));
+  } catch (e) {
+    dispatch(invalidRequest(e.message));
+  }
+};
 export const getAllServiceFieldsApi = (token) => async (dispatch) => {
   try {
     dispatch(serviceRequestLoading());

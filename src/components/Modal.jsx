@@ -6,22 +6,22 @@ const Modal = ({
   title = "Default Title",
   body = "Default body content goes here.",
   size = "md", // Default size
-  noStartMargin = true,
+  noStartMargin = false,
 }) => {
   const sizeClasses = {
     sm: "w-10/12 md:w-1/4",
     md: "w-10/12 md:w-1/2 mt-12",
     lg: "w-10/12 md:w-3/4",
-    xl: "w-[99%]  h-[90vh] mt-20",
+    xl: "w-full  h-screen overflow-scroll",
   };
 
   return (
     <div
-      className={`${
-        noStartMargin ? "" : "ml-64"
-      } :bg-gray-800 :text-white backdrop-blur-sm fixed inset-0 flex justify-center items-start md:items-center pt-10 md:pt-0 bg-gray-800 bg-opacity-30 transition-opacity duration-1000 ${
-        isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-      }`}
+      className={`
+      ${noStartMargin ? "" : "ml-64"}
+       :bg-gray-800 :text-white backdrop-blur-sm fixed inset-0 flex justify-center items-start md:items-center md:pt-0 bg-gray-800 bg-opacity-30 transition-opacity duration-1000 ${
+         isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+       }`}
     >
       <div
         className={`relative bg-white ${
@@ -46,7 +46,7 @@ const Modal = ({
         </div>
 
         {/* Modal Body */}
-        <div className="w-full p-3  max-h-[70vh] overflow-scroll rounded-lg bg-white mt-1">
+        <div className="w-full p-3 overflow-scroll rounded-lg bg-white mt-1">
           {body}
         </div>
       </div>

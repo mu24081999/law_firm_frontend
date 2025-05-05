@@ -13,7 +13,7 @@ import { logoutUser } from "../redux/services/auth";
 function ProfileMenu({ userType }) {
   const { firmId } = useParams();
   const navigate = useNavigate();
-  const { token } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
@@ -63,11 +63,14 @@ function ProfileMenu({ userType }) {
         >
           <Menu.Items className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="px-4 py-2 border-b">
-              <p className="text-sm font-medium text-gray-900">John Doe</p>
-              <p className="text-xs text-gray-500">john@example.com</p>
+              <p className="text-sm font-medium text-gray-900">
+                {" "}
+                {user?.firstname + " " + user?.lastname}
+              </p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
 
-            <Menu.Item>
+            {/* <Menu.Item>
               {({ active }) => (
                 <a
                   href="#profile"
@@ -113,7 +116,7 @@ function ProfileMenu({ userType }) {
                   Settings
                 </a>
               )}
-            </Menu.Item>
+            </Menu.Item> */}
 
             <Menu.Item>
               {({ active }) => (

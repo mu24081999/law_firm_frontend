@@ -7,6 +7,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUserApi } from "../../redux/services/users";
+import { resetUserPasswordApi } from "../../redux/services/auth";
+import Button from "../../components/Button";
 
 function Settings() {
   const dispatch = useDispatch();
@@ -30,6 +32,11 @@ function Settings() {
     twoFactorEnabled: false,
     loginNotifications: true,
     deviceHistory: [],
+  });
+  const [resetPasswordData, setResetPasswordData] = useState({
+    password: "",
+    confirmPassword: "",
+    email: user?.email,
   });
   useEffect(() => {
     if (user)
@@ -81,6 +88,14 @@ function Settings() {
     console.log("update profile", profile);
     dispatch(updateUserApi(token, profile, user.id));
   };
+  const handleChangePassword = (e) => {
+    e.preventDefault();
+    dispatch(resetUserPasswordApi(resetPasswordData));
+    setResetPasswordData({
+      password: "",
+      confirmPassword: "",
+    });
+  };
 
   return (
     <div className="bg-white shadow rounded-lg p-6">
@@ -101,7 +116,7 @@ function Settings() {
             <UserCircleIcon className="w-5 h-5 mr-2" />
             Profile
           </Tab>
-          <Tab
+          {/* <Tab
             className={({ selected }) =>
               `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
             ${
@@ -113,7 +128,7 @@ function Settings() {
           >
             <BellIcon className="w-5 h-5 mr-2" />
             Notifications
-          </Tab>
+          </Tab> */}
           <Tab
             className={({ selected }) =>
               `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
@@ -252,19 +267,19 @@ function Settings() {
                 </div>
               </div>
               <div className="mt-6 flex justify-end">
-                <button
+                <Button
                   type="button"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+                  // className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
                   onClick={handleUpdateProfile}
                 >
                   Save Changes
-                </button>
+                </Button>
               </div>
             </div>
           </Tab.Panel>
 
           {/* Notifications Panel */}
-          <Tab.Panel>
+          {/* <Tab.Panel>
             <div className="space-y-6">
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -355,7 +370,7 @@ function Settings() {
                 </div>
               </div>
             </div>
-          </Tab.Panel>
+          </Tab.Panel> */}
 
           {/* Security Panel */}
           <Tab.Panel>
@@ -388,8 +403,64 @@ function Settings() {
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                     </label>
                   </div>
+                  <form
+                    className="mt-8 space-y-6"
+                    onSubmit={handleChangePassword}
+                  >
+                    <div className="rounded-md shadow-sm -space-y-px">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        Update Your Password
+                      </h3>
+                      <div>
+                        <label htmlFor="new-password" className="sr-only">
+                          New Password
+                        </label>
+                        <input
+                          id="new-password"
+                          name="new-password"
+                          type="password"
+                          onChange={(e) =>
+                            setResetPasswordData((prev) => ({
+                              ...prev,
+                              password: e.target.value,
+                            }))
+                          }
+                          required
+                          className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                          placeholder="New password"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="confirm-password" className="sr-only">
+                          Confirm Password
+                        </label>
+                        <input
+                          id="confirm-password"
+                          name="confirm-password"
+                          type="password"
+                          required
+                          onChange={(e) =>
+                            setResetPasswordData((prev) => ({
+                              ...prev,
+                              confirmPassword: e.target.value,
+                            }))
+                          }
+                          className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+                    </div>
 
-                  <div className="flex items-center justify-between">
+                    <div>
+                      <Button
+                        type="submit"
+                        // className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        Reset Password
+                      </Button>
+                    </div>
+                  </form>
+                  {/* <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-700">
                         Login Notifications
@@ -443,7 +514,7 @@ function Settings() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -1,78 +1,55 @@
 import { useEffect, useState } from "react";
 import ServiceRequestForm from "../../components/ServiceRequestForm";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllServiceFieldsApi } from "../../redux/services/service";
+import {
+  addBankRecieptApi,
+  addServiceRequestApi,
+  getAllServiceFieldsApi,
+} from "../../redux/services/service";
 import Modal from "../../components/Modal";
 import AddRequestForm from "./components/AddRequestForm";
+import DynamicFormRenderer from "../components/StepsRenderer/DynamicFormRender";
+import { useParams } from "react-router-dom";
+import Button from "../../components/Button";
+import FileField from "../../components/FormFields/FileField/FileField";
+import { useForm } from "react-hook-form";
 function UserServices() {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm();
+  const { firmId } = useParams();
   const dispatch = useDispatch();
   const [selectedService, setSelectedService] = useState(null);
-  const { token } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
   const { services: data } = useSelector((state) => state.service);
   const [services, setServices] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  // const services = [
-  //   {
-  //     title: "Personal Tax Filing",
-  //     description: "File your personal income tax returns",
-  //     icon: "📋",
-  //     price: "5,000",
-  //   },
-  //   {
-  //     title: "Family Tax Filing",
-  //     description: "Manage tax filing for your family members",
-  //     icon: "👨‍👩‍👧‍👦",
-  //     price: "8,000",
-  //   },
-  //   {
-  //     title: "NTN Registration",
-  //     description: "Register for National Tax Number",
-  //     icon: "🆔",
-  //     price: "3,000",
-  //   },
-  //   {
-  //     title: "NTN Finder",
-  //     description: "Find your National Tax Number",
-  //     icon: "🔍",
-  //     price: "1,000",
-  //   },
-  //   {
-  //     title: "ATL Status Check",
-  //     description: "Check Active Taxpayer List status",
-  //     icon: "✓",
-  //     price: "1,500",
-  //   },
-  //   {
-  //     title: "IRIS Profile Update",
-  //     description: "Update your IRIS portal profile",
-  //     icon: "👤",
-  //     price: "2,000",
-  //   },
-  //   {
-  //     title: "Business Incorporation",
-  //     description: "Register your business",
-  //     icon: "🏢",
-  //     price: "15,000",
-  //   },
-  //   {
-  //     title: "GST Registration",
-  //     description: "Register for General Sales Tax",
-  //     icon: "📊",
-  //     price: "10,000",
-  //   },
-  //   {
-  //     title: "IP Registration",
-  //     description: "Register and protect your intellectual property",
-  //     icon: "💡",
-  //     price: "20,000",
-  //   },
-  //   {
-  //     title: "USA LLC Formation",
-  //     description: "Form your LLC in the United States",
-  //     icon: "🌎",
-  //     price: "50,000",
-  //   },
-  // ];
+  const [paymentFormOpen, setPaymentFormOpen] = useState(false);
+  const handleAddRequest = async (formData) => {
+    const params = {
+      userId: user.id,
+      serviceId: selectedService.id,
+      firmId: firmId,
+      ...formData,
+    };
+    const done = await dispatch(addServiceRequestApi(token, params));
+    if (done) {
+      setIsOpen(false);
+      setPaymentFormOpen(true);
+    }
+  };
+  const handleSubmitPaymentProof = (formData) => {
+    const params = {
+      userId: user.id,
+      serviceId: selectedService?.serviceId,
+      serviceRequestId: selectedService?.id,
+      reciept: formData.reciept,
+    };
+    dispatch(addBankRecieptApi(token, params));
+    setIsOpen(false);
+  };
   useEffect(() => {
     dispatch(getAllServiceFieldsApi(token));
   }, [token, dispatch]);
@@ -83,6 +60,13 @@ function UserServices() {
   }, [data]);
   const handleCloseModal = (value) => {
     setIsOpen(value);
+  };
+  const bankDetails = {
+    accountName: "John Wick",
+    accountNumber: "1234567890123456",
+    bankName: "Chase Bank",
+    ifscCode: "CHASUS33XXX", // or SWIFT code depending on country
+    branch: "New York - Manhattan Branch",
   };
   return (
     <div className="bg-white shadow rounded-lg p-6">
@@ -105,7 +89,15 @@ function UserServices() {
             <p className="text-lg font-semibold text-indigo-600 mb-4">
               Rs. {service?.customServiceFields?.[0]?.price}
             </p>
-            <button
+            <Button
+              onClick={() => {
+                setSelectedService(service);
+                setIsOpen(true);
+              }}
+            >
+              Request Service
+            </Button>
+            {/* <button
               onClick={() => {
                 setSelectedService(service);
                 setIsOpen(true);
@@ -113,7 +105,7 @@ function UserServices() {
               className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors duration-200"
             >
               Request Service
-            </button>
+            </button> */}
           </div>
         ))}
       </div>
@@ -124,20 +116,78 @@ function UserServices() {
           onClose={() => setSelectedService(null)}
         />
       )} */}
-      <div>
-        <Modal
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          title={selectedService?.name}
-          body={
-            <AddRequestForm
-              fields={selectedService?.customServiceFields?.[0]?.requirements}
-              service={selectedService}
-              handleModalOpen={handleCloseModal}
-            />
-          }
-        />
-      </div>
+      {selectedService?.customServiceFields && (
+        <div>
+          <Modal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            title={selectedService?.name}
+            size="xl"
+            noStartMargin={window.innerWidth > 700 ? false : true}
+            body={
+              <DynamicFormRenderer
+                formSchema={
+                  typeof selectedService?.customServiceFields?.[0]
+                    ?.requirements === "string"
+                    ? JSON.parse(
+                        selectedService?.customServiceFields?.[0]?.requirements
+                      )
+                    : selectedService?.customServiceFields?.[0]?.requirements
+                }
+                onSubmit={handleAddRequest}
+              />
+            }
+          />
+        </div>
+      )}
+      <Modal
+        isOpen={paymentFormOpen}
+        onClose={() => setPaymentFormOpen(false)}
+        title="Payment Reciept"
+        body={
+          <>
+            <section>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                🏦 Bank Details
+              </h2>
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                <div>
+                  <strong>Account Name:</strong>{" "}
+                  {bankDetails?.accountName || "N/A"}
+                </div>
+                <div>
+                  <strong>Account Number:</strong>{" "}
+                  {bankDetails?.accountNumber || "N/A"}
+                </div>
+                <div>
+                  <strong>Bank Name:</strong> {bankDetails?.bankName || "N/A"}
+                </div>
+                <div>
+                  <strong>IFSC Code:</strong> {bankDetails?.ifscCode || "N/A"}
+                </div>
+                <div>
+                  <strong>Branch:</strong> {bankDetails?.branch || "N/A"}
+                </div>
+              </div>
+            </section>
+            <form onSubmit={handleSubmit(handleSubmitPaymentProof)}>
+              <FileField
+                name={"reciept"}
+                control={control}
+                errors={errors}
+                label={"Reciept"}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Field required!",
+                  },
+                }}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </>
+        }
+      />
     </div>
   );
 }

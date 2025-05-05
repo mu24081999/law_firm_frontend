@@ -9,18 +9,21 @@ import Settings from "./Settings";
 import Team from "./Team";
 import Integration from "./Integrations";
 import Template from "./Template";
+import TeamChat from "./TeamChat";
+import ServiceRequests from "./ServiceRequests";
 function Dashboard() {
   return (
     <LawFirmLayout>
       <Routes>
         <Route path="/" element={<LawFirmHome />} />
         <Route path="/template" element={<Template />} />
-
         <Route path="/clients" element={<LawFirmClients />} />
         <Route path="/services" element={<LawFirmServices />} />
+        <Route path="/service-requests" element={<ServiceRequests />} />
         <Route path="/chat" element={<LawFirmChat />} />
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/team" element={<Team />} />
+        <Route path="/team-chat" element={<TeamChat />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/payment-integrations" element={<Integration />} />
       </Routes>

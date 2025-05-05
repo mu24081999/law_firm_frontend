@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Button from "../../components/Button";
 const NTNVerificationForm = () => {
   const [ntn, setNtn] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -59,20 +60,20 @@ const NTNVerificationForm = () => {
           </div>
 
           {isLoading ? (
-            <button
+            <Button
               type="button"
-              className="w-full bg-indigo-500 text-white py-2 px-4 rounded-lg opacity-50 cursor-not-allowed"
+              // className="w-full bg-indigo-500 text-white py-2 px-4 rounded-lg opacity-50 cursor-not-allowed"
               disabled
             >
               Verifying...
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="submit"
-              className="w-full bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500"
+              // className="w-full bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500"
             >
               Verify NTN
-            </button>
+            </Button>
           )}
         </form>
         {isVerified !== null && (

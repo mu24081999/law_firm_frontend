@@ -1,8 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { RiSecurePaymentLine } from "react-icons/ri";
+import { RiSecurePaymentLine, RiBankCardLine } from "react-icons/ri";
 import Button from "../../components/Button";
+import LawFirmBankDetailsForm from "./components/LawFirmBankDetailsForm";
+import Modal from "../../components/Modal";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addUpdateAccount,
+  getBankAccountByUserId,
+} from "../../redux/services/bankAccount";
 const Integrations = () => {
+  const dispatch = useDispatch();
+  const { token, user } = useSelector((state) => state.auth);
+  const [selectedService, setSelectedService] = useState({});
+  const [isOpen, setIsOpen] = useState(false);
+  const handleBankFormSubmit = async (formData) => {
+    dispatch(addUpdateAccount(token, formData));
+  };
   const [integrations, setIntegrations] = useState([
     {
       id: 1,
@@ -10,9 +24,17 @@ const Integrations = () => {
       description: "Local Payment Gateway in Pakistan",
       icon: <RiSecurePaymentLine size={50} />,
       status: "active",
+      component: <div></div>,
+    },
+    {
+      id: 2,
+      title: "Bank Account",
+      description: "Client payments via bank transfer",
+      icon: <RiBankCardLine size={50} />,
+      status: "active",
+      component: <LawFirmBankDetailsForm onSubmit={handleBankFormSubmit} />,
     },
   ]);
-  console.log("🚀 ~ Integrations ~ integrations:", integrations);
   const handleIntegrationChange = (id, status) => {
     setIntegrations((prevIntegrations) =>
       prevIntegrations.map((integration) =>
@@ -20,6 +42,11 @@ const Integrations = () => {
       )
     );
   };
+  useEffect(() => {
+    dispatch(getBankAccountByUserId(token, user?.id));
+    return () => {};
+  }, [user, token, dispatch]);
+
   return (
     <div>
       <div className="bg-white shadow rounded-lg p-6">
@@ -61,7 +88,13 @@ const Integrations = () => {
                 </label>
               </div>
               <div className="flex space-x-3">
-                <Button className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors duration-200">
+                <Button
+                  onClick={() => {
+                    setSelectedService(service);
+                    setIsOpen(true);
+                  }}
+                  className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors duration-200"
+                >
                   Configure
                 </Button>
               </div>
@@ -69,6 +102,18 @@ const Integrations = () => {
           ))}
         </div>
       </div>
+      {selectedService && (
+        <div>
+          <Modal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            title={selectedService?.title}
+            size="xl"
+            noStartMargin={window.innerWidth > 700 ? false : true}
+            body={selectedService?.component}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -12,6 +12,10 @@ import userReducer from "./slices/users";
 import firmReducer from "./slices/firm";
 import domainReducer from "./slices/domain";
 import templateReducer from "./slices/template";
+import lawFirmReducer from "./slices/lawfirm";
+import emailAccountReducer from "./slices/emailAccount";
+import emailTemplateReducer from "./slices/emailTemplate";
+import bankAccountReducer from "./slices/bankAccount";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
@@ -27,4 +31,8 @@ export const rootReducer = combineReducers({
   firm: firmReducer,
   domain: domainReducer,
   template: templateReducer,
+  lawfirm: lawFirmReducer,
+  emailAccount: emailAccountReducer,
+  emailTemplate: emailTemplateReducer,
+  bankAccount: bankAccountReducer,
 });

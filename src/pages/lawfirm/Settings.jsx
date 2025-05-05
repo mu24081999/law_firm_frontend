@@ -24,6 +24,17 @@ import {
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import { addDomainApi, getUserDomainApi } from "../../redux/services/domain";
+import {
+  resetPasswordApi,
+  resetUserPasswordApi,
+} from "../../redux/services/auth";
+import { Alert } from "flowbite-react";
+import DynamicFormBuilder from "../components/Steps/DynamicForm";
+import ServiceAccordion from "./components/ServiceAccordion";
+import FirmSettings from "./components/FirmSettings";
+import EmailConnector from "./components/EmailConnector";
+import EmailTemplateEditor from "./components/EmailTemplateEditor";
+
 function Settings() {
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
@@ -45,6 +56,7 @@ function Settings() {
   });
   const [servicesData, setServicesData] = useState([]);
   const [domain, setDomain] = useState("");
+  console.log("🚀 ~ Settings ~ domain:", domain);
   const [subdomain, setSubdomain] = useState("");
   const [logo, setLogo] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
@@ -55,27 +67,11 @@ function Settings() {
     address: "",
   });
 
-  // const [services, setServices] = useState([
-  //   {
-  //     id: 1,
-  //     name: "Personal Tax Filing",
-  //     enabled: true,
-  //     price: "5000",
-  //     description: "File your personal income tax returns",
-  //     processingTime: "3-5 days",
-  //     requirements: ["CNIC", "Salary Slips", "Bank Statements"],
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Family Tax Filing",
-  //     enabled: true,
-  //     price: "8000",
-  //     description: "Manage tax filing for your family members",
-  //     processingTime: "5-7 days",
-  //     requirements: ["Family Members CNICs", "Income Proof", "Utility Bills"],
-  //   },
-  //   // Add all other services here
-  // ]);
+  const [resetPasswordData, setResetPasswordData] = useState({
+    password: "",
+    confirmPassword: "",
+    email: user?.email,
+  });
 
   const templates = [
     {
@@ -106,7 +102,14 @@ function Settings() {
     { extension: ".net", price: "1100" },
     { extension: ".org", price: "1000" },
   ];
-
+  const handleChangePassword = (e) => {
+    e.preventDefault();
+    dispatch(resetUserPasswordApi(resetPasswordData));
+    setResetPasswordData({
+      password: "",
+      confirmPassword: "",
+    });
+  };
   const handleColorChange = (key, value) => {
     setColors((prev) => ({ ...prev, [key]: value }));
   };
@@ -192,16 +195,33 @@ function Settings() {
     dispatch(getUserDomainApi(token, user?.id));
   }, [dispatch, token, user]);
   useEffect(() => {
+    const formattedData = [];
     if (services?.length > 0) {
-      setServicesData(services);
+      services?.map((service) => {
+        const customServiceFields = service?.customServiceFields?.map(
+          (field) => ({
+            ...field,
+            requirements:
+              typeof field?.requirements === "string"
+                ? JSON.parse(field?.requirements)
+                : field?.requirements,
+          })
+        );
+        formattedData.push({
+          ...service,
+          customServiceFields: customServiceFields || [],
+        });
+      });
     }
+    setServicesData(formattedData);
   }, [services]);
+
   useEffect(() => {
-    if (domain) {
-      setDomain(domain?.mainDomain);
-      setSubdomain(domain?.subDomain);
+    if (domainData?.id) {
+      setDomain(domainData?.mainDomain);
+      setSubdomain(domainData?.subDomain);
     }
-  }, [domain]);
+  }, [domainData]);
   useEffect(() => {
     if (firm?.id) {
       setFirmDetails({
@@ -251,15 +271,17 @@ function Settings() {
     deviceHistory: [],
   });
   useEffect(() => {
-    if (user)
+    if (user) {
+      const data = user?.member ? user?.member : user;
       setProfile({
-        firstname: user?.firstname,
-        lastname: user?.lastname,
-        email: user?.email,
-        phoneNumber: user?.phoneNumber,
-        address: user?.address,
-        avatar: user?.avatar,
+        firstname: data?.firstname,
+        lastname: data?.lastname,
+        email: data?.email,
+        phoneNumber: data?.phoneNumber,
+        address: data?.address,
+        avatar: data?.avatar,
       });
+    }
   }, [user]);
 
   const handleProfileChange = (field, value) => {
@@ -312,23 +334,71 @@ function Settings() {
       })
     );
   };
+  const tabsConfig = [
+    {
+      label: "Profile",
+      icon: Squares2X2Icon,
+      key: "profile",
+      show: true,
+    },
+    {
+      label: "Templates",
+      icon: Squares2X2Icon,
+      key: "templates",
+      show: true,
+    },
+    {
+      label: "Appearance",
+      icon: SwatchIcon,
+      key: "appearance",
+      show: true,
+    },
+    {
+      label: "Domain",
+      icon: GlobeAltIcon,
+      key: "domain",
+      show: !user?.member, // Only show if not a member
+    },
+    {
+      label: "Services",
+      icon: CurrencyDollarIcon,
+      key: "services",
+      show: true,
+    },
+    {
+      label: "Firm Settings",
+      icon: CurrencyDollarIcon,
+      key: "services",
+      show: true,
+    },
+    {
+      label: "Email Connector",
+      icon: CurrencyDollarIcon,
+      key: "email_connector",
+      show: true,
+    },
+    {
+      label: "Email Sequence",
+      icon: CurrencyDollarIcon,
+      key: "email_sequence",
+      show: true,
+    },
+  ];
 
   return (
     <div>
       <div className="bg-white shadow rounded-lg p-6">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">
-          Website Settings
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Settings</h1>
 
         <Tab.Group>
-          <Tab.List className="flex space-x-1 rounded-xl bg-indigo-100 p-1 mb-6">
-            <Tab
+          <Tab.List className="lg:flex sm:flex sm:flex-wrap lg:flex-nowrap space-x-1 flex-wrap rounded-xl bg-indigo-100 p-1 mb-6">
+            {/* <Tab
               className={({ selected }) =>
-                `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+                `sm:w-full lg:w-full rounded-lg py-2.5 text-sm font-medium leading-5 
             ${
               selected
-                ? "bg-white text-indigo-700 shadow"
-                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800"
+                ? "bg-white text-indigo-700 shadow w-full"
+                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800 w-full"
             } flex items-center justify-center`
               }
             >
@@ -337,11 +407,11 @@ function Settings() {
             </Tab>
             <Tab
               className={({ selected }) =>
-                `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+                `sm:w-full lg:w-full rounded-lg py-2.5 text-sm font-medium leading-5 
             ${
               selected
-                ? "bg-white text-indigo-700 shadow"
-                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800"
+                ? "bg-white text-indigo-700 shadow w-full"
+                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800 w-full"
             } flex items-center justify-center`
               }
             >
@@ -350,43 +420,63 @@ function Settings() {
             </Tab>
             <Tab
               className={({ selected }) =>
-                `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+                `sm:w-full lg:w-full rounded-lg py-2.5 text-sm font-medium leading-5 
             ${
               selected
-                ? "bg-white text-indigo-700 shadow"
-                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800"
+                ? "bg-white text-indigo-700 shadow w-full"
+                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800 w-full"
             } flex items-center justify-center`
               }
             >
               <SwatchIcon className="w-5 h-5 mr-2" />
               Appearance
             </Tab>
-            <Tab
-              className={({ selected }) =>
-                `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+            {!user?.member && (
+              <Tab
+                className={({ selected }) =>
+                  `sm:w-full lg:w-full rounded-lg py-2.5 text-sm font-medium leading-5 
             ${
               selected
-                ? "bg-white text-indigo-700 shadow"
-                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800"
+                ? "bg-white text-indigo-700 shadow w-full"
+                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800 w-full"
             } flex items-center justify-center`
-              }
-            >
-              <GlobeAltIcon className="w-5 h-5 mr-2" />
-              Domain
-            </Tab>
+                }
+              >
+                <GlobeAltIcon className="w-5 h-5 mr-2" />
+                Domain
+              </Tab>
+            )}
             <Tab
               className={({ selected }) =>
-                `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+                `sm:w-full lg:w-full rounded-lg py-2.5 text-sm font-medium leading-5 
             ${
               selected
-                ? "bg-white text-indigo-700 shadow"
-                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800"
+                ? "bg-white text-indigo-700 shadow w-full"
+                : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800 w-full"
             } flex items-center justify-center`
               }
             >
               <CurrencyDollarIcon className="w-5 h-5 mr-2" />
               Services
-            </Tab>
+            </Tab> */}
+            {tabsConfig
+              .filter((tab) => tab.show)
+              .map(({ label, icon: Icon }, index) => (
+                <Tab
+                  key={index}
+                  className={({ selected }) =>
+                    `sm:w-full lg:w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+          ${
+            selected
+              ? "bg-white text-indigo-700 shadow w-full"
+              : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800 w-full"
+          } flex items-center justify-center`
+                  }
+                >
+                  <Icon className="w-5 h-5 mr-2" />
+                  {label}
+                </Tab>
+              ))}
           </Tab.List>
 
           <Tab.Panels>
@@ -412,72 +502,76 @@ function Settings() {
                       Profile
                     </Tab>
 
-                    <Tab
-                      className={({ selected }) =>
-                        `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+                    {!user?.member && (
+                      <Tab
+                        className={({ selected }) =>
+                          `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
             ${
               selected
                 ? "bg-white text-indigo-700 shadow"
                 : "text-indigo-600 hover:bg-white/[0.12] hover:text-indigo-800"
             } flex items-center justify-center`
-                      }
-                    >
-                      <ShieldCheckIcon className="w-5 h-5 mr-2" />
-                      Security
-                    </Tab>
+                        }
+                      >
+                        <ShieldCheckIcon className="w-5 h-5 mr-2" />
+                        Security
+                      </Tab>
+                    )}
                   </Tab.List>
 
                   <Tab.Panels>
                     {/* Profile Panel */}
                     <Tab.Panel>
                       <div className="space-y-6">
-                        <div className="flex items-center space-x-6">
-                          <div className="relative">
-                            <img
-                              src={
-                                profile.avatar ||
-                                `https://ui-avatars.com/api/?name=${profile.fistname}&size=128`
-                              }
-                              alt="Profile"
-                              className="w-32 h-32 rounded-full"
-                            />
-                            <label className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full cursor-pointer">
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={handleAvatarChange}
+                        {!user?.member && (
+                          <div className="flex items-center space-x-6">
+                            <div className="relative">
+                              <img
+                                src={
+                                  profile.avatar ||
+                                  `https://ui-avatars.com/api/?name=${profile.fistname}&size=128`
+                                }
+                                alt="Profile"
+                                className="w-32 h-32 rounded-full"
                               />
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                              <label className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full cursor-pointer">
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={handleAvatarChange}
                                 />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                              </svg>
-                            </label>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                </svg>
+                              </label>
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-medium text-gray-900">
+                                Profile Picture
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                JPG, GIF or PNG. Max size of 2MB
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">
-                              Profile Picture
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              JPG, GIF or PNG. Max size of 2MB
-                            </p>
-                          </div>
-                        </div>
+                        )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
@@ -595,8 +689,70 @@ function Settings() {
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                               </label>
                             </div>
+                            <form
+                              className="mt-8 space-y-6"
+                              onSubmit={handleChangePassword}
+                            >
+                              <div className="rounded-md shadow-sm -space-y-px">
+                                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                                  Update Your Password
+                                </h3>
+                                <div>
+                                  <label
+                                    htmlFor="new-password"
+                                    className="sr-only"
+                                  >
+                                    New Password
+                                  </label>
+                                  <input
+                                    id="new-password"
+                                    name="new-password"
+                                    type="password"
+                                    onChange={(e) =>
+                                      setResetPasswordData((prev) => ({
+                                        ...prev,
+                                        password: e.target.value,
+                                      }))
+                                    }
+                                    required
+                                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    placeholder="New password"
+                                  />
+                                </div>
+                                <div>
+                                  <label
+                                    htmlFor="confirm-password"
+                                    className="sr-only"
+                                  >
+                                    Confirm Password
+                                  </label>
+                                  <input
+                                    id="confirm-password"
+                                    name="confirm-password"
+                                    type="password"
+                                    required
+                                    onChange={(e) =>
+                                      setResetPasswordData((prev) => ({
+                                        ...prev,
+                                        confirmPassword: e.target.value,
+                                      }))
+                                    }
+                                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    placeholder="Confirm new password"
+                                  />
+                                </div>
+                              </div>
 
-                            <div className="flex items-center justify-between">
+                              <div>
+                                <button
+                                  type="submit"
+                                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                  Reset Password
+                                </button>
+                              </div>
+                            </form>
+                            {/* <div className="flex items-center justify-between">
                               <div>
                                 <p className="font-medium text-gray-700">
                                   Login Notifications
@@ -656,7 +812,7 @@ function Settings() {
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            </div> */}
                           </div>
                         </div>
                       </div>
@@ -667,8 +823,13 @@ function Settings() {
             </Tab.Panel>
             {/* Templates Panel */}
             <Tab.Panel>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {templates.map((template) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+                <div className="">
+                  <Alert color="info" className="border border-red-600">
+                    <span className="font-medium">Info alert!</span> Coming soon
+                  </Alert>
+                </div>
+                {/* {templates.map((template) => (
                   <div
                     key={template.id}
                     className={`border rounded-lg p-4 cursor-pointer ${
@@ -690,7 +851,7 @@ function Settings() {
                       {template.description}
                     </p>
                   </div>
-                ))}
+                ))} */}
               </div>
             </Tab.Panel>
 
@@ -1076,26 +1237,27 @@ function Settings() {
             </Tab.Panel>
 
             {/* Domain Panel */}
-            <Tab.Panel>
-              <div className="space-y-6">
-                {/* Domain Search and Purchase */}
-                <div className="border-b pb-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Purchase New Domain
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex gap-4">
-                      <input
-                        type="text"
-                        placeholder="Enter your desired domain name"
-                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                      />
-                      <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                        Search
-                      </button>
-                    </div>
+            {!user?.member && (
+              <Tab.Panel>
+                <div className="space-y-6">
+                  {/* Domain Search and Purchase */}
+                  {/* <div className="border-b pb-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Purchase New Domain
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex gap-4">
+                        <input
+                          type="text"
+                          placeholder="Enter your desired domain name"
+                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        />
+                        <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                          Search
+                        </button>
+                      </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {availableDomains.map((domain, index) => (
                         <div
                           key={index}
@@ -1114,304 +1276,194 @@ function Settings() {
                           </button>
                         </div>
                       ))}
+                    </div> 
                     </div>
-                  </div>
-                </div>
+                  </div> */}
 
-                {/* Existing Domain Configuration */}
-                <form onSubmit={handleDomainSubmit}>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Domain Configuration
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Custom Domain
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          value={domain}
-                          onChange={(e) => setDomain(e.target.value)}
-                          placeholder="yourdomain.com"
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        />
+                  {/* Existing Domain Configuration */}
+                  <form onSubmit={handleDomainSubmit}>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Domain Configuration
+                    </h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Custom Domain
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            type="text"
+                            value={domain}
+                            onChange={(e) => setDomain(e.target.value)}
+                            placeholder="yourdomain.com"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                          />
+                        </div>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Enter your custom domain if you want to use it for
+                          your website.
+                        </p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">
-                        Enter your custom domain if you want to use it for your
-                        website.
-                      </p>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Subdomain
-                      </label>
-                      <div className="mt-1 flex rounded-md shadow-sm">
-                        <input
-                          type="text"
-                          value={subdomain}
-                          onChange={(e) => setSubdomain(e.target.value)}
-                          className="block w-full rounded-none rounded-l-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                        />
-                        <span className="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500">
-                          .yourdomain.com
-                        </span>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Subdomain
+                        </label>
+                        <div className="mt-1 flex rounded-md shadow-sm">
+                          <input
+                            type="text"
+                            value={subdomain}
+                            onChange={(e) => setSubdomain(e.target.value)}
+                            className="block w-full rounded-none rounded-l-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          />
+                          <span className="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500">
+                            .{domain}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-sm text-gray-500">
+                          This subdomain will be used for your dashboard access.
+                        </p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">
-                        This subdomain will be used for your dashboard access.
-                      </p>
-                    </div>
 
-                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                      <div className="flex">
-                        <div className="ml-3">
-                          <p className="text-sm text-yellow-700">
-                            After setting up your domain, you'll need to update
-                            your DNS records. We'll provide the necessary
-                            instructions.
-                          </p>
+                      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                        <div className="flex">
+                          <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                              After setting up your domain, you'll need to
+                              update your nameservers. We'll provide the
+                              necessary instructions.
+                            </p>
+                            <div>
+                              <section className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-xl mt-10">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                                  How to Update Nameservers
+                                </h2>
+
+                                <ol className="list-decimal list-inside space-y-3 text-gray-700">
+                                  <li>
+                                    <strong>
+                                      Log In to Your Domain Registrar:
+                                    </strong>
+                                    Visit your domain provider's website (e.g.,
+                                    Namecheap, GoDaddy) and log into your
+                                    account.
+                                  </li>
+
+                                  <li>
+                                    <strong>
+                                      Go to Domain List / My Domains:
+                                    </strong>
+                                    Navigate to the section where your domains
+                                    are listed and click on the one you want to
+                                    update.
+                                  </li>
+
+                                  <li>
+                                    <strong>Find Nameserver Settings:</strong>
+                                    Look for a section called{" "}
+                                    <span className="italic">
+                                      "Nameservers"
+                                    </span>{" "}
+                                    or{" "}
+                                    <span className="italic">
+                                      "DNS Settings"
+                                    </span>
+                                    .
+                                  </li>
+
+                                  <li>
+                                    <strong>Select Custom DNS:</strong>
+                                    Choose the option like{" "}
+                                    <span className="italic">
+                                      "Custom DNS"
+                                    </span>{" "}
+                                    or{" "}
+                                    <span className="italic">
+                                      "Use custom nameservers"
+                                    </span>
+                                    .
+                                  </li>
+
+                                  <li>
+                                    <strong>Enter Hosting Nameservers:</strong>
+                                    Replace the existing ones with the
+                                    nameservers your host provides. For example:
+                                    <div className="bg-gray-100 p-2 rounded mt-1 font-mono text-sm">
+                                      {typeof domainData?.nameservers ===
+                                      "string"
+                                        ? JSON.parse(
+                                            domainData?.nameservers
+                                          )?.map((key, index) => (
+                                            <p key={index}>{key}</p>
+                                          ))
+                                        : domainData?.nameservers?.map(
+                                            (key, index) => (
+                                              <p key={index}>{key}</p>
+                                            )
+                                          )}
+                                    </div>
+                                  </li>
+
+                                  <li>
+                                    <strong>Save Changes:</strong>
+                                    Click <span className="italic">
+                                      "Save"
+                                    </span>{" "}
+                                    or <span className="italic">"Update"</span>.
+                                    Changes can take up to{" "}
+                                    <strong>24–48 hours</strong> to fully
+                                    propagate.
+                                  </li>
+
+                                  <li>
+                                    <strong>Verify DNS Propagation:</strong>
+                                    You can check status via &nbsp;
+                                    <a
+                                      href="https://dnschecker.org"
+                                      target="_blank"
+                                      className="text-blue-600 underline hover:text-blue-800"
+                                    >
+                                      dnschecker.org
+                                    </a>
+                                    .
+                                  </li>
+                                </ol>
+                              </section>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-6 flex justify-end">
-                    <button
-                      type="submit"
-                      className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-                    >
-                      Save Settings
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </Tab.Panel>
+                    <div className="mt-6 flex justify-end">
+                      <button
+                        type="submit"
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+                      >
+                        Save Settings
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </Tab.Panel>
+            )}
 
             {/* Services Panel */}
             <Tab.Panel>
-              <div className="space-y-6">
-                {servicesData?.map((service, index) => (
-                  <div key={index} className="border rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {service?.name}
-                      </h3>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={
-                            service?.customServiceFields?.[0]?.status ===
-                            "active"
-                          }
-                          onChange={(e) => {
-                            handleServiceChange(
-                              service.id,
-                              service?.customServiceFields?.[0]?.id,
-                              "status",
-                              e.target.checked ? "active" : "inactive"
-                            );
-                          }}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                      </label>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Price (Rs.)
-                        </label>
-                        <input
-                          type="number"
-                          value={
-                            service?.customServiceFields?.[0]?.price || "0"
-                          }
-                          onChange={(e) =>
-                            handleServiceChange(
-                              service?.id,
-                              service?.customServiceFields?.[0]?.id,
-                              "price",
-                              e.target.value
-                            )
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Processing Time
-                        </label>
-                        <input
-                          type="text"
-                          value={
-                            service?.customServiceFields?.[0]?.processingTime
-                          }
-                          onChange={(e) =>
-                            handleServiceChange(
-                              service?.id,
-                              service?.customServiceFields?.[0]?.id,
-                              "processingTime",
-                              e.target.value
-                            )
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Description
-                        </label>
-                        <textarea
-                          value={service?.customServiceFields?.[0]?.description}
-                          onChange={(e) =>
-                            handleServiceChange(
-                              service?.id,
-                              service?.customServiceFields?.[0]?.id,
-                              "description",
-                              e.target.value
-                            )
-                          }
-                          rows={3}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Requirements
-                        </label>
-                        <div className="mt-2 space-y-2">
-                          {service?.customServiceFields?.[0]?.requirements?.map(
-                            (req, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2"
-                              >
-                                {/* Dropdown to select file type */}
-                                <select
-                                  value={req?.type}
-                                  onChange={(e) => {
-                                    const updatedReqs =
-                                      service?.customServiceFields?.[0]?.requirements.map(
-                                        (item, i) =>
-                                          i === index
-                                            ? {
-                                                ...item,
-                                                type: e.target.value,
-                                                value: "nill",
-                                              }
-                                            : item
-                                      );
-
-                                    handleServiceChange(
-                                      service.id,
-                                      service?.customServiceFields?.[0]?.id, // Correct field ID
-                                      "requirements",
-                                      updatedReqs
-                                    );
-                                  }}
-                                  className="border border-gray-300 p-1 rounded-md"
-                                >
-                                  <option value="text">Text</option>
-                                  <option value="file">Image</option>
-                                </select>
-
-                                {/* Input field based on selected type */}
-
-                                <input
-                                  type="text"
-                                  name={req?.name}
-                                  value={req?.tempName || req.name}
-                                  placeholder="Field Name"
-                                  onChange={(e) => {
-                                    const newReqs =
-                                      service?.customServiceFields?.[0]?.requirements.map(
-                                        (item, i) =>
-                                          i === index
-                                            ? {
-                                                ...item,
-                                                name: e.target.value,
-                                                tempName: e.target.value,
-                                                value: "nill",
-                                              }
-                                            : item
-                                      );
-
-                                    handleServiceChange(
-                                      service.id,
-                                      service?.customServiceFields?.[0]?.id, // Correct field ID
-                                      "requirements",
-                                      newReqs
-                                    );
-                                  }}
-                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
-
-                                {/* Remove button */}
-                                <button
-                                  onClick={() => {
-                                    const newReqs =
-                                      service?.customServiceFields?.[0]?.requirements.filter(
-                                        (_, i) => i !== index
-                                      );
-
-                                    handleServiceChange(
-                                      service.id,
-                                      service?.customServiceFields?.[0]?.id, // Correct field ID
-                                      "requirements",
-                                      newReqs
-                                    );
-                                  }}
-                                  className="text-red-600 hover:text-red-800"
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            )
-                          )}
-
-                          <button
-                            onClick={() => {
-                              // Clone existing requirements array and add a new empty requirement
-                              const newReqs = [
-                                ...(service?.customServiceFields?.[0]
-                                  ?.requirements || []),
-                                {
-                                  name: "",
-                                  type: "text",
-                                  value: "",
-                                },
-                              ];
-
-                              handleServiceChange(
-                                service.id,
-                                service?.customServiceFields?.[0]?.id, // Correct field ID
-                                "requirements",
-                                newReqs
-                              );
-                            }}
-                            className="text-sm text-indigo-600 hover:text-indigo-800"
-                          >
-                            + Add Requirement
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={handleSaveSettings}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-                  >
-                    Save Settings
-                  </button>
-                </div>
-              </div>
+              <ServiceAccordion
+                servicesData={servicesData}
+                handleServiceChange={handleServiceChange}
+                handleSaveSettings={handleSaveSettings}
+              />
+            </Tab.Panel>
+            {/*  */}
+            <Tab.Panel>
+              <FirmSettings />
+            </Tab.Panel>
+            <Tab.Panel>
+              <EmailConnector />
+            </Tab.Panel>
+            <Tab.Panel>
+              <EmailTemplateEditor />
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>

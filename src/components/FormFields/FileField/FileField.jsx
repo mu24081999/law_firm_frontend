@@ -20,19 +20,19 @@ const FileField = React.forwardRef((props, ref) => {
           <div className="flex items-center justify-center w-full">
             <label
               htmlFor={`dropzone-${name}`}
-              className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+              className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 :hover:bg-gray-800 :bg-gray-700 hover:bg-gray-100 :border-gray-600 :hover:border-gray-500 :hover:bg-gray-600"
             >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <FaImage size={50} color="#006aff" className="" />
-                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col items-center justify-center">
+                {/* <FaImage size={50} color="#006aff" className="" /> */}
+                <p className="mb-2 text-sm text-gray-500 :text-gray-400">
                   <span className="font-semibold">
-                    <p className=" w-fit  p-2 text-white bg-indigo-600 to-white-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-sm px-5 text-center me-2 mb-2">
+                    <p className=" w-fit  p-2 text-white bg-indigo-600 to-white-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 :focus:ring-blue-800 font-bold rounded-lg text-sm px-5 text-center me-2 mb-2">
                       Upload Photos
                     </p>
                   </span>{" "}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  SVG, PNG, JPG, or GIF (MAX. 800x400px)
+                <p className="text-xs text-gray-500 :text-gray-400">
+                  PNG, JPG (MAX. 800x400px)
                 </p>
               </div>
               <input

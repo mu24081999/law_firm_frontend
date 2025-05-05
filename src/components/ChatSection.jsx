@@ -3,30 +3,14 @@ import useSocket from "../context/SocketContext/useSocket";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import Button from "./Button";
 function ChatSection() {
   const { firmId } = useParams();
   const { clientsArray, getMessages, messagesArray, sendMessage, getRooms } =
     useSocket();
   const [selectedClient, setSelectedClient] = useState(null);
   const { token, user } = useSelector((state) => state.auth);
-  const [messages, setMessages] = useState([
-    // Temporary mock data - replace with real data from backend
-    {
-      id: 1,
-      sender: "user",
-      message: "Hello, I need help with my tax filing.",
-      timestamp: "2024-03-15T10:00:00",
-      files: [],
-    },
-    {
-      id: 2,
-      sender: "lawfirm",
-      message:
-        "Hi! I'd be happy to help. Could you please share your tax documents?",
-      timestamp: "2024-03-15T10:01:00",
-      files: [],
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const messagesEndRef = useRef(null);
@@ -37,7 +21,7 @@ function ChatSection() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, messagesArray]);
 
   const handleSendMessage = () => {
     if (newMessage.trim() === "" && selectedFiles.length === 0) return;
@@ -46,9 +30,7 @@ function ChatSection() {
       senderId: user?.id,
       recieverId: selectedClient?.id,
       message: newMessage.trim(),
-      // files: selectedFiles,
     };
-    console.log("🚀 ~ handleSendMessage ~ newMsg:", newMsg);
     sendMessage(newMsg);
     setMessages([...messages, newMsg]);
     setNewMessage("");
@@ -59,65 +41,34 @@ function ChatSection() {
     const files = Array.from(e.target.files);
     setSelectedFiles(files);
   };
+
   const handleSelected = (client) => {
     setSelectedClient(client);
     getMessages(user?.id, client?.id);
   };
+
   useEffect(() => {
     let userType = firmId ? "client" : "firm";
     const userId = firmId ? firmId : user?.id;
     const me = user?.id;
     getRooms(userType, userId, me);
   }, [user, firmId]);
+
   return (
-    <div className="grid lg:grid-cols-3 sm:grid-cols-1 h-[87vh] overflow-hidden">
-      {/* <!-- Sidebar --> */}
-      <div className=" col-span-1 bg-white border-r border-gray-300">
-        {/* <!-- Sidebar Header --> */}
+    <div className="flex flex-col md:flex-row h-[87vh] overflow-hidden">
+      {/* Sidebar */}
+      <div
+        className={`${
+          selectedClient ? "sm:hidden md:block" : "block"
+        } w-full md:w-1/3 bg-white border-r border-gray-300`}
+      >
+        {/* Header */}
         <header className="p-4 border-b border-gray-300 flex justify-between items-center bg-indigo-600 text-white">
-          <h1 className="text-2xl font-semibold">Client Chat</h1>
-          <div className="relative">
-            <button id="menuButton" className="focus:outline-none">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-100"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path d="M2 10a2 2 0 012-2h12a2 2 0 012 2 2 2 0 01-2 2H4a2 2 0 01-2-2z" />
-              </svg>
-            </button>
-            {/* <!-- Menu Dropdown --> */}
-            <div
-              id="menuDropdown"
-              className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg hidden"
-            >
-              <ul className="py-2 px-3">
-                <li>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-800 hover:text-gray-400"
-                  >
-                    Option 1
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-800 hover:text-gray-400"
-                  >
-                    Option 2
-                  </a>
-                </li>
-                {/* <!-- Add more menu options here --> */}
-              </ul>
-            </div>
-          </div>
+          <h1 className="text-xl md:text-2xl font-semibold">Client Chat</h1>
         </header>
 
-        {/* <!-- Contact List --> */}
-        <div className="overflow-y-auto h-screen p-3 mb-9 pb-20">
+        {/* Contact List */}
+        <div className="overflow-y-scroll h-[75vh] p-3">
           {Array.isArray(clientsArray) &&
             clientsArray?.map((client, index) => (
               <div
@@ -125,71 +76,71 @@ function ChatSection() {
                 onClick={() => handleSelected(client)}
                 className="flex items-center mb-4 cursor-pointer hover:bg-gray-100 p-2 rounded-md"
               >
-                <div className="w-12 h-12 bg-gray-300 rounded-full mr-3">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-300 rounded-full mr-3">
                   <img
                     src={
                       client?.avatar ||
                       "https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato"
                     }
                     alt="User Avatar"
-                    className="w-12 h-12 rounded-full"
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-full"
                   />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-lg font-semibold">
+                  <h2 className="text-md md:text-lg font-semibold">
                     {client?.firstname + " " + client?.lastname}
                   </h2>
-                  <p className="text-gray-600">Hoorayy!!</p>
+                  <p className="text-gray-600 text-sm">Click to chat</p>
                 </div>
               </div>
             ))}
         </div>
       </div>
 
-      {/* <!-- Main Chat Area --> */}
-      <div className="col-span-2 flex-1">
-        {/* <!-- Chat Header --> */}
+      {/* Chat Area */}
+      <div
+        className={`${
+          selectedClient ? "block" : "hidden md:block"
+        } w-full md:w-2/3 flex flex-col`}
+      >
         {selectedClient && (
           <>
-            <header className="bg-white p-4 text-gray-700">
-              <h1 className="text-2xl font-semibold">
-                {selectedClient?.id
-                  ? selectedClient?.firstname + " " + selectedClient?.lastname
-                  : ""}
+            {/* Chat Header */}
+            <header className="bg-white p-4 border-b border-gray-300 flex justify-between items-center">
+              <h1 className="text-xl font-semibold">
+                {selectedClient?.firstname + " " + selectedClient?.lastname}
               </h1>
+              {/* Mobile back button */}
+              <button
+                onClick={() => setSelectedClient(null)}
+                className="md:hidden text-indigo-500 underline"
+              >
+                ← Back
+              </button>
             </header>
 
-            <div className="h-[88vh] overflow-y-auto p-4 pb-36">
+            {/* Messages */}
+            <div className="flex-1 sm:max-h-[60vh] lg:max-h-[75vh] overflow-scroll p-4">
               {messagesArray?.map((message, index) => (
-                <div key={index}>
+                <div key={index} ref={messagesEndRef}>
                   {message?.senderId === user?.id ? (
-                    <div className="flex justify-end mb-4 cursor-pointer">
-                      <div className=" max-w-96 bg-indigo-500 text-white rounded-lg p-3 gap-3">
-                        <p>{message?.message}</p>
-                        <p className="float-end text-xs text-white">
+                    <div className="flex justify-end mb-4">
+                      <div className="max-w-[80%] bg-indigo-500 text-white rounded-lg p-3">
+                        <p className="text-sm md:text-base">
+                          {message?.message}
+                        </p>
+                        <p className="text-xs text-white mt-1 text-right">
                           {format(message?.createdAt, "dd MMM HH:mm a")}
                         </p>
                       </div>
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center ml-2">
-                        <img
-                          src="https://placehold.co/200x/b7a8ff/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato"
-                          alt="My Avatar"
-                          className="w-8 h-8 rounded-full"
-                        />
-                      </div>
                     </div>
                   ) : (
-                    <div className="flex mb-4 cursor-pointer">
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center mr-2">
-                        <img
-                          src="https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato"
-                          alt="User Avatar"
-                          className="w-8 h-8 rounded-full"
-                        />
-                      </div>
-                      <div className=" max-w-96 bg-white rounded-lg p-3 gap-3">
-                        <p className="text-gray-700">{message?.message}</p>
-                        <p className="text-gray-700 text-xs float-end">
+                    <div className="flex justify-start mb-4">
+                      <div className="max-w-[80%] bg-white text-gray-800 rounded-lg p-3">
+                        <p className="text-sm md:text-base">
+                          {message?.message}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1 text-right">
                           {format(message?.createdAt, "dd MMM HH:mm a")}
                         </p>
                       </div>
@@ -199,25 +150,32 @@ function ChatSection() {
               ))}
             </div>
 
-            {/* <!-- Chat Input --> */}
-            <footer className="bg-white border-t border-gray-300 p-4 absolute bottom-0 w-1/2 mb-5">
-              <div className="flex items-center">
+            {/* Input */}
+            <footer className="p-4 border-t border-gray-300 bg-white">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={newMessage}
-                  onChange={(event) => setNewMessage(event.target.value)}
+                  onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
-                  className="w-full p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500"
+                  className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none text-sm md:text-base"
                 />
-                <button
-                  className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2"
+                <Button
                   onClick={handleSendMessage}
+                  // className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm md:text-base"
                 >
                   Send
-                </button>
+                </Button>
               </div>
             </footer>
           </>
+        )}
+        {!selectedClient && (
+          <div className="flex items-center justify-center h-full bg-gray-100">
+            <p className="text-gray-500 text-center">
+              Select a client to start chatting.
+            </p>
+          </div>
         )}
       </div>
     </div>

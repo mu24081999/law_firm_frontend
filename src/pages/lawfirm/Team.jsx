@@ -13,6 +13,7 @@ import {
 import { useEffect } from "react";
 import Table from "../../components/Table";
 import { format } from "date-fns";
+import DynamicForm from "../components/Steps/DynamicForm";
 function Team() {
   const {
     handleSubmit,

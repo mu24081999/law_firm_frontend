@@ -45,7 +45,7 @@ const Checkbox = React.forwardRef((props, ref) => {
               style={style ? style : {}}
               className={`w-4 h-4 text-[#006aff] bg-white border-gray-300 rounded focus:ring-[#006aff] dark:focus:ring-[#006aff] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600`}
             />
-            <label className="w-full ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+            <label className="w-full ms-2 text-sm font-medium text-gray-900 ">
               {label}
             </label>
           </div>

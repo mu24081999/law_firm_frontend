@@ -9,6 +9,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import InputField from "../../components/FormFields/InputField/InputField";
+import Checkbox from "../../components/FormFields/Checkbox/Checkbox";
 import { FaRegEye } from "react-icons/fa";
 import Button from "../../components/Button";
 import { loginUser } from "../../redux/services/auth";
@@ -31,6 +32,7 @@ function Login() {
     let params = {
       email: formData.email,
       password: formData.password,
+      is_team: formData?.is_team || false,
     };
     if (firmId) {
       params = {
@@ -81,7 +83,7 @@ function Login() {
         </div>
 
         {/* Method Toggle */}
-        <div className="flex rounded-md shadow-sm" role="group">
+        {/* <div className="flex rounded-md shadow-sm" role="group">
           <button
             type="button"
             onClick={() => setMethod("email")}
@@ -104,7 +106,7 @@ function Login() {
           >
             Phone Number
           </button>
-        </div>
+        </div> */}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(handleLogin)}>
           <div className="rounded-md shadow-sm -space-y-px">
@@ -167,7 +169,16 @@ function Login() {
               </Link>
             </div>
           </div>
-
+          {!firmId && (
+            <div>
+              <Checkbox
+                name="is_team"
+                control={control}
+                errors={errors}
+                label="Team Login"
+              />
+            </div>
+          )}
           {/* <div>
             <select
               value={userType}

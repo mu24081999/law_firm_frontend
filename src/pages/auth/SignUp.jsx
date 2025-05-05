@@ -25,6 +25,7 @@ function SignUp() {
   const [isTeanRegistered, setIsTeanRegistered] = useState(false);
 
   const handleSignUp = async (data) => {
+    console.log("🚀 ~ handleSignUp ~ data:", data, authType);
     if (authType === "team") {
       const formData = {
         firstname: data.firstname,
@@ -53,11 +54,11 @@ function SignUp() {
         ...userData,
         firmId: firmId,
       };
-      console.log(userData);
-      const is_registered = await dispatch(registerUser(userData));
-      if (is_registered?.data?.userData) {
-        setIsRegistered(true);
-      }
+    }
+    console.log(userData);
+    const is_registered = await dispatch(registerUser(userData));
+    if (is_registered?.data?.userData) {
+      setIsRegistered(true);
     }
   };
   useEffect(() => {
@@ -104,7 +105,7 @@ function SignUp() {
         </div>
 
         {/* Method Toggle */}
-        <div className="flex rounded-md shadow-sm" role="group">
+        {/* <div className="flex rounded-md shadow-sm" role="group">
           <button
             type="button"
             onClick={() => setMethod("email")}
@@ -115,8 +116,8 @@ function SignUp() {
             }`}
           >
             Email
-          </button>
-          <button
+          </button> */}
+        {/* <button
             type="button"
             onClick={() => setMethod("phone")}
             className={`w-1/2 py-2 px-4 text-sm font-medium rounded-r-lg border ${
@@ -126,8 +127,8 @@ function SignUp() {
             }`}
           >
             Phone Number
-          </button>
-        </div>
+          </button> */}
+        {/* </div> */}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(handleSignUp)}>
           <div className="rounded-md shadow-sm -space-y-px">
