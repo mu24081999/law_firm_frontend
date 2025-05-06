@@ -50,9 +50,7 @@ const ServiceAccordion = ({
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={
-                      service?.customServiceFields?.[0]?.status === "active"
-                    }
+                    checked={service?.allowed}
                     onChange={(e) => {
                       handleServiceChange(
                         service.id,

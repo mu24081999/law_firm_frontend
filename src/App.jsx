@@ -31,6 +31,8 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/otp" element={<OTP />} />
+          <Route path="/:firmId/forgot-password" element={<ForgotPassword />} />
+          <Route path="/:firmId/otp" element={<OTP />} />
 
           {/* User Dashboard Routes */}
           <Route path="/:firmId/user/*" element={<UserDashboard />} />

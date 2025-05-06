@@ -44,6 +44,7 @@ function ServiceRequests() {
       serviceRequests?.map((request) => {
         data.push({
           ...request,
+          orderId: request?.id?.slice(0, 10),
           client: request?.requestBy?.email,
           serviceName: (
             <div className="flex items-center justify-center gap-2">
@@ -73,7 +74,7 @@ function ServiceRequests() {
     return () => {};
   }, [serviceRequests, isLoading, dispatch, token, user]);
   const columns = [
-    { label: "Order ID", accessor: "id" },
+    { label: "Order ID", accessor: "orderId" },
 
     { label: "Service Name", accessor: "serviceName" },
     { label: "CLient", accessor: "client" },

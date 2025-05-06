@@ -27,7 +27,7 @@ const Requests = () => {
   const { token, user } = useSelector((state) => state.auth);
   const { clients, isLoading } = useSelector((state) => state.firm);
   const columns = [
-    { label: "Order ID", accessor: "id" },
+    { label: "Order ID", accessor: "orderId" },
     { label: "Service Name", accessor: "serviceName" },
     { label: "Amount Paid", accessor: "amount" },
     { label: "Status", accessor: "payment_status" },
@@ -62,6 +62,8 @@ const Requests = () => {
       serviceRequests?.map((request) => {
         data.push({
           ...request,
+          orderId: request?.id?.slice(0, 10),
+
           serviceName: (
             <div className="flex items-center justify-center gap-2">
               <div>

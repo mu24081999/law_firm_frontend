@@ -1,13 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getFirmAnalytics } from "../../redux/services/analytics";
 function LawFirmHome() {
-  const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { user, token } = useSelector((state) => state.auth);
+  const { analytics } = useSelector((state) => state.analytics);
+  const [analyticsData, setAnalyticsData] = useState({});
   const navigateTo = useNavigate();
   const handleNavigate = () => {
     navigateTo(`/${user.id}/login`);
   };
+
+  useEffect(() => {
+    dispatch(getFirmAnalytics(token, user.id));
+  }, [token, user, dispatch]);
+  useEffect(() => {
+    if (analytics) {
+      setAnalyticsData(analytics);
+    }
+  }, [analytics]);
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <div>
@@ -25,17 +38,23 @@ function LawFirmHome() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-blue-50 p-4 rounded-lg">
           <h2 className="text-lg font-medium text-blue-700">Total Clients</h2>
-          <p className="text-3xl font-bold text-blue-900 mt-2">0</p>
+          <p className="text-3xl font-bold text-blue-900 mt-2">
+            {analyticsData?.totalClients}
+          </p>
         </div>
         <div className="bg-yellow-50 p-4 rounded-lg">
           <h2 className="text-lg font-medium text-yellow-700">Active Cases</h2>
-          <p className="text-3xl font-bold text-yellow-900 mt-2">0</p>
+          <p className="text-3xl font-bold text-yellow-900 mt-2">
+            {analyticsData?.activeCases}
+          </p>
         </div>
         <div className="bg-green-50 p-4 rounded-lg">
           <h2 className="text-lg font-medium text-green-700">
             Completed Cases
           </h2>
-          <p className="text-3xl font-bold text-green-900 mt-2">0</p>
+          <p className="text-3xl font-bold text-green-900 mt-2">
+            {analyticsData?.completedCases}
+          </p>
         </div>
       </div>
     </div>

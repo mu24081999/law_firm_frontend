@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   forgotPasswordApi,
   resetPasswordApi,
@@ -8,6 +8,7 @@ import {
 } from "../../redux/services/auth";
 
 function ForgotPassword() {
+  const { firmId } = useParams();
   const dispatch = useDispatch();
   const navigateTo = useNavigate();
   const [method, setMethod] = useState("email");
@@ -42,7 +43,7 @@ function ForgotPassword() {
       };
       const result = await dispatch(resetPasswordApi(params));
       if (result.success) {
-        navigateTo("/login");
+        navigateTo(firmId ? `/${firmId}/login` : "/login");
       }
     }
   };
@@ -57,7 +58,7 @@ function ForgotPassword() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{" "}
             <Link
-              to="/login"
+              to={firmId ? `/${firmId}/login` : "/login"}
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               return to sign in

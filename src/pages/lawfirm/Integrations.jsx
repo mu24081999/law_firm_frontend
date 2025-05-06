@@ -18,14 +18,14 @@ const Integrations = () => {
     dispatch(addUpdateAccount(token, formData));
   };
   const [integrations, setIntegrations] = useState([
-    {
-      id: 1,
-      title: "Paymob",
-      description: "Local Payment Gateway in Pakistan",
-      icon: <RiSecurePaymentLine size={50} />,
-      status: "active",
-      component: <div></div>,
-    },
+    // {
+    //   id: 1,
+    //   title: "Paymob",
+    //   description: "Local Payment Gateway in Pakistan",
+    //   icon: <RiSecurePaymentLine size={50} />,
+    //   status: "active",
+    //   component: <div></div>,
+    // },
     {
       id: 2,
       title: "Bank Account",

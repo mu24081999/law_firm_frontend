@@ -20,7 +20,6 @@ function Login() {
     formState: { errors },
   } = useForm();
   const { firmId } = useParams();
-  console.log("🚀 ~ Login ~ location:", firmId);
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -162,7 +161,7 @@ function Login() {
 
             <div className="text-sm">
               <Link
-                to="/forgot-password"
+                to={firmId ? `/${firmId}/forgot-password` : "/forgot-password"}
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
                 Forgot your password?
