@@ -12,6 +12,9 @@ import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import OTP from "./pages/auth/OTP";
 import { ToastContainer } from "react-toastify";
+import Pricing from "./pages/auth/Pricing";
+import PaymentConfirmationPage from "./pages/auth/PaymentConfirmationPage";
+import TermsAndConditions from "./pages/auth/Terms";
 
 function App() {
   return (
@@ -26,10 +29,14 @@ function App() {
         <Routes>
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/processing" element={<PaymentConfirmationPage />} />
+
           <Route path="/:firmId/login" element={<Login />} />
           <Route path="/:firmId/signup" element={<SignUp />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/subscription" element={<Pricing />} />
           <Route path="/otp" element={<OTP />} />
           <Route path="/:firmId/forgot-password" element={<ForgotPassword />} />
           <Route path="/:firmId/otp" element={<OTP />} />

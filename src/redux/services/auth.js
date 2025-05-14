@@ -11,6 +11,8 @@ import {
   verifyOtp,
   // twoFa,
   contactUs,
+  addSubscription,
+  updateMe,
   // updateMe,
 } from "../slices/auth";
 import { toast } from "react-toastify";
@@ -40,6 +42,37 @@ export const registerUser = (registerData) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const addSubscriptionApi = (token, formData) => async (dispatch) => {
+  try {
+    dispatch(authRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.post(
+      `${backendURL}/auth/subscriptions`,
+      formData,
+      config
+    );
+    if (response?.data?.statusCode !== 200) {
+      toast.error(response.data.message);
+      dispatch(invalidRequest(response.data.message));
+      return {
+        success: false,
+      };
+    }
+    toast.success(response.data.message);
+    dispatch(updateMe(response.data.data.user));
+    dispatch(addSubscription(response.data.data.subscription));
+    return {
+      success: true,
+    };
+  } catch (e) {
+    dispatch(invalidRequest(e.message));
+  }
+};
 export const registerTeamMember = (registerData) => async (dispatch) => {
   try {
     dispatch(authRequestLoading());
@@ -49,7 +82,7 @@ export const registerTeamMember = (registerData) => async (dispatch) => {
       },
     };
     const response = await axios.post(
-      `${backendURL}/team-member/register-member`,
+      `${backendURL}/team/register-member`,
       registerData,
       config
     );

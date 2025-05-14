@@ -341,12 +341,12 @@ function Settings() {
       key: "profile",
       show: true,
     },
-    {
-      label: "Templates",
-      icon: Squares2X2Icon,
-      key: "templates",
-      show: true,
-    },
+    // {
+    //   label: "Templates",
+    //   icon: Squares2X2Icon,
+    //   key: "templates",
+    //   show: true,
+    // },
     {
       label: "Appearance",
       icon: SwatchIcon,
@@ -822,14 +822,14 @@ function Settings() {
               </div>
             </Tab.Panel>
             {/* Templates Panel */}
-            <Tab.Panel>
+            {/* <Tab.Panel>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
                 <div className="">
                   <Alert color="info" className="border border-red-600">
                     <span className="font-medium">Info alert!</span> Coming soon
                   </Alert>
                 </div>
-                {/* {templates.map((template) => (
+                {templates.map((template) => (
                   <div
                     key={template.id}
                     className={`border rounded-lg p-4 cursor-pointer ${
@@ -851,9 +851,9 @@ function Settings() {
                       {template.description}
                     </p>
                   </div>
-                ))} */}
+                ))}
               </div>
-            </Tab.Panel>
+            </Tab.Panel> */}
 
             {/* Appearance Panel */}
             <Tab.Panel>

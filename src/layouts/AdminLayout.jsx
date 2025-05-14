@@ -26,21 +26,12 @@ function AdminLayout({ children }) {
       path: "/admin/law-firms",
       icon: <BuildingOfficeIcon className="w-5 h-5" />,
     },
-    {
-      name: "Users",
-      path: "/admin/users",
-      icon: <UserGroupIcon className="w-5 h-5" />,
-    },
-    {
-      name: "Contacts",
-      path: "/admin/contacts",
-      icon: <UserPlusIcon className="w-5 h-5" />,
-    },
-    {
-      name: "Settings",
-      path: "/admin/settings",
-      icon: <Cog6ToothIcon className="w-5 h-5" />,
-    },
+
+    // {
+    //   name: "Settings",
+    //   path: "/admin/settings",
+    //   icon: <Cog6ToothIcon className="w-5 h-5" />,
+    // },
   ];
 
   return (

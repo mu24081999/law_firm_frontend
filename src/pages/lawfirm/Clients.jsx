@@ -3,8 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { getClientsApi } from "../../redux/services/firm";
 import Table from "../../components/Table";
 import { format } from "date-fns";
+import { loginUser } from "../../redux/services/auth";
+import { useNavigate } from "react-router-dom";
 
 const LawFirmClients = () => {
+  const navigateTo = useNavigate();
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
 
@@ -19,12 +22,12 @@ const LawFirmClients = () => {
     { label: "Phone Number", accessor: "phoneNumber" },
     { label: "Joined at", accessor: "createdAt" },
 
-    // {
-    //   label: "Actions",
-    //   accessor: "actions",
-    //   type: "actions",
-    //   variant: "green",
-    // },
+    {
+      label: "Actions",
+      accessor: "actions",
+      type: "actions",
+      variant: "green",
+    },
   ];
   useEffect(() => {
     dispatch(getClientsApi(token, user?.id));
@@ -47,7 +50,20 @@ const LawFirmClients = () => {
             {
               color: "green",
               // loading: isLoading,
-              label: "Claim Number",
+              label: "Login",
+
+              onClick: async () => {
+                let Params = {
+                  passwordType: "decrypted",
+                  email: client?.email,
+                  password: client?.password,
+                  firmId: user?.id,
+                };
+                const logged_in = await dispatch(loginUser(Params));
+                if (logged_in?.success) {
+                  navigateTo(`/${user?.id}/user`);
+                }
+              },
             },
           ],
         });
@@ -69,9 +85,10 @@ const LawFirmClients = () => {
             pagination={false}
             data={tableData}
             actions={false}
+            exportData={true}
           />
         ) : (
-          <div className="text-center bg-white py-5">No Numbers Found</div>
+          <div className="text-center bg-white py-5">No Data Found</div>
         )}
       </div>
       {/* <div className="overflow-x-auto">

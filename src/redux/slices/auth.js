@@ -6,6 +6,7 @@ export const authSlice = createSlice({
   initialState: {
     isLoading: false,
     user: {},
+    subscription: {},
     userId: "",
     message: "",
     error: "",
@@ -108,6 +109,11 @@ export const authSlice = createSlice({
     setAccount: (state, action) => {
       state.user = action.payload;
     },
+    addSubscription: (state, action) => {
+      state.isLoading = false;
+      state.subscription = action.payload;
+      state.message = "";
+    },
   },
 });
 
@@ -126,4 +132,5 @@ export const {
   setAccount,
   twoFa,
   contactUs,
+  addSubscription,
 } = authSlice.actions;

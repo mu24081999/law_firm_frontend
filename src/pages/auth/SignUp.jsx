@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import ReactSelectField from "../../components/FormFields/ReactSelectField/ReactSelectField";
 import Button from "../../components/Button";
 import { registerTeamMember, registerUser } from "../../redux/services/auth";
+import { FaEye } from "react-icons/fa";
+import Checkbox from "../../components/FormFields/Checkbox/Checkbox";
 function SignUp() {
   const {
     handleSubmit,
@@ -199,9 +201,35 @@ function SignUp() {
                 name="confirmPassword"
                 type="password"
                 control={control}
-                // svg={<MdDriveFileRenameOutline />}
+                svg={<FaEye />}
                 errors={errors}
                 label="Confirm Password"
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Field required!",
+                  },
+                }}
+              />
+            </div>
+            <div className="pt-4">
+              <Checkbox
+                name="agree"
+                type="password"
+                control={control}
+                svg={<FaEye />}
+                errors={errors}
+                label={
+                  <div>
+                    I agree to the{" "}
+                    <Link
+                      to="/terms"
+                      className="font-medium text-indigo-600 hover:text-indigo-500"
+                    >
+                      Terms and Conditions
+                    </Link>{" "}
+                  </div>
+                }
                 rules={{
                   required: {
                     value: true,

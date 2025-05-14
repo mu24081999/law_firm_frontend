@@ -60,6 +60,32 @@ export const addServiceRequestApi = (token, data) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const updateServiceRequestApi = (token, data) => async (dispatch) => {
+  try {
+    dispatch(serviceRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.post(
+      `${backendURL}/service-requests`,
+      data,
+      config
+    );
+    if (!response.data.statusCode === 200) {
+      dispatch(invalidRequest(response.data.message));
+      toast.error(response.data.message);
+      return false;
+    }
+    dispatch(addServiceRequest(response.data.data.request));
+    toast.success(response.data.message);
+    return true;
+  } catch (e) {
+    dispatch(invalidRequest(e.message));
+  }
+};
 export const addServiceFieldsApi = (token, data) => async (dispatch) => {
   try {
     dispatch(serviceRequestLoading());

@@ -116,6 +116,7 @@ function Services() {
           <ServiceForm
             onSubmit={selectedContact ? handleUpdateContact : handleAddContact}
             initialData={selectedContact}
+            afterSubmit={() => setShowForm(false)}
           />
         </div>
       ) : (

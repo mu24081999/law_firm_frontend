@@ -110,7 +110,9 @@ const ServiceRequestDetails = ({ data }) => {
           📝 Submitted Fields
         </h2>
         <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
-          {Object.entries(fields).map(([key, value]) => (
+          {Object.entries(
+            typeof fields === "string" ? JSON.parse(fields) : fields
+          ).map(([key, value]) => (
             <div key={key}>
               <strong>{key.replace(/_/g, " ")}:</strong> {value}
             </div>

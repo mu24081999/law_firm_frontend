@@ -1,15 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
 import { getUserAnalytics } from "../../redux/services/analytics";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 function UserHome() {
+  const { firmId } = useParams();
   const dispatch = useDispatch();
   const { user, token } = useSelector((state) => state.auth);
   const { analytics } = useSelector((state) => state.analytics);
   const [analyticsData, setAnalyticsData] = useState({});
   useEffect(() => {
-    dispatch(getUserAnalytics(token, user.id));
-  }, [token, user, dispatch]);
+    dispatch(getUserAnalytics(token, firmId));
+  }, [token, firmId, dispatch]);
   useEffect(() => {
     if (analytics) {
       setAnalyticsData(analytics);

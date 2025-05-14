@@ -21,7 +21,6 @@ const Requests = () => {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-  console.log("🚀 ~ Requests ~ selectedService:", selectedService);
   const [tableData, setTableData] = useState([]);
 
   const { token, user } = useSelector((state) => state.auth);

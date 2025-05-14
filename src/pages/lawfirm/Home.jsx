@@ -43,14 +43,16 @@ function LawFirmHome() {
           </p>
         </div>
         <div className="bg-yellow-50 p-4 rounded-lg">
-          <h2 className="text-lg font-medium text-yellow-700">Active Cases</h2>
+          <h2 className="text-lg font-medium text-yellow-700">
+            Active Service Requests
+          </h2>
           <p className="text-3xl font-bold text-yellow-900 mt-2">
             {analyticsData?.activeCases}
           </p>
         </div>
         <div className="bg-green-50 p-4 rounded-lg">
           <h2 className="text-lg font-medium text-green-700">
-            Completed Cases
+            Completed Service Requests
           </h2>
           <p className="text-3xl font-bold text-green-900 mt-2">
             {analyticsData?.completedCases}

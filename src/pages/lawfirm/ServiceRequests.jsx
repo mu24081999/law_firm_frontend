@@ -54,6 +54,22 @@ function ServiceRequests() {
               <div>{request?.service?.name}</div>
             </div>
           ),
+          status: (
+            <select name="status">
+              <option value="pending" selected={request?.status === "pending"}>
+                Pending
+              </option>
+              <option value="active" selected={request?.status === "active"}>
+                Active
+              </option>
+              <option
+                value="completed"
+                selected={request?.status === "completed"}
+              >
+                Completed
+              </option>
+            </select>
+          ),
           createdAt: format(request?.createdAt, "dd MMM yyyy"),
           actions: [
             {
@@ -79,7 +95,8 @@ function ServiceRequests() {
     { label: "Service Name", accessor: "serviceName" },
     { label: "CLient", accessor: "client" },
     { label: "Amount Paid", accessor: "amount" },
-    { label: "Status", accessor: "payment_status" },
+    { label: "Payment Status", accessor: "payment_status" },
+    { label: "Confirm Status", accessor: "status" },
     { label: "Created At", accessor: "createdAt" },
 
     {
@@ -101,6 +118,7 @@ function ServiceRequests() {
             pagination={false}
             data={tableData}
             actions={true}
+            exportData={true}
           />
         ) : (
           <div className="text-center bg-white py-5">No Data Found</div>

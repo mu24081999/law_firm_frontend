@@ -15,9 +15,11 @@ import {
 import PropTypes from "prop-types";
 import { RiSecurePaymentLine } from "react-icons/ri";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 // import DarkModeSwitcher from "../components/DarkmodeSwitcher";
 
 function LawFirmLayout({ children }) {
+  const { user } = useSelector((state) => state.auth);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
   const sidebarItems = [
     {
@@ -50,11 +52,7 @@ function LawFirmLayout({ children }) {
       path: "/lawfirm/team-chat",
       icon: <UserPlusIcon className="w-5 h-5" />,
     },
-    {
-      name: "Team",
-      path: "/lawfirm/team",
-      icon: <UsersIcon className="w-5 h-5" />,
-    },
+
     {
       name: "Client Chat",
       path: "/lawfirm/chat",
@@ -71,9 +69,17 @@ function LawFirmLayout({ children }) {
       icon: <RiSecurePaymentLine className="w-5 h-5" />,
     },
   ];
+  if (!user?.member) {
+    sidebarItems?.push({
+      name: "Team",
+      path: "/lawfirm/team",
+      icon: <UsersIcon className="w-5 h-5" />,
+    });
+  }
   const handleSidebarToggle = (value) => {
     setIsSidebarOpen(value);
   };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Sidebar

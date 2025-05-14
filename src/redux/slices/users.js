@@ -49,6 +49,13 @@ export const authSlice = createSlice({
       state.message = "User fetched successfully";
       state.type = "GetUser";
     },
+    getUsers: (state, action) => {
+      state.users = action.payload;
+      state.isLoading = false;
+      state.error = "";
+      state.message = "Users fetched successfully";
+      state.type = "GetUsers";
+    },
     getUserSubaccounts: (state, action) => {
       state.users = action.payload;
       state.isLoading = false;
@@ -68,4 +75,5 @@ export const {
   getUser,
   deleteUser,
   getUserSubaccounts,
+  getUsers,
 } = authSlice.actions;

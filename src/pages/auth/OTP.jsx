@@ -34,7 +34,8 @@ function ForgotPassword() {
       isVerified?.success &&
       isVerified?.userData?.role?.name === "law_firm"
     ) {
-      return navigateTo("/lawfirm");
+      // return navigateTo("/lawfirm");
+      return navigateTo("/subscription");
     } else if (
       isVerified?.success &&
       isVerified?.userData?.role?.name === "user"
