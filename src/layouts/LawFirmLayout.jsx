@@ -16,10 +16,19 @@ import PropTypes from "prop-types";
 import { RiSecurePaymentLine } from "react-icons/ri";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import NotificationDropdown from "../components/NotificationDropdown";
+import { FaFileInvoice } from "react-icons/fa";
 // import DarkModeSwitcher from "../components/DarkmodeSwitcher";
+import {
+  IoDocumentLockOutline,
+  IoFolderOpenOutline,
+  IoWalletOutline,
+} from "react-icons/io5";
+import { TbUsersGroup } from "react-icons/tb";
 
 function LawFirmLayout({ children }) {
   const { user } = useSelector((state) => state.auth);
+  const { notifications } = useSelector((state) => state.user);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
   const sidebarItems = [
     {
@@ -52,11 +61,30 @@ function LawFirmLayout({ children }) {
       path: "/lawfirm/team-chat",
       icon: <UserPlusIcon className="w-5 h-5" />,
     },
-
     {
       name: "Client Chat",
       path: "/lawfirm/chat",
       icon: <ChatBubbleLeftRightIcon className="w-5 h-5" />,
+    },
+    {
+      name: "Case Management",
+      path: "/lawfirm/case-management",
+      icon: <IoDocumentLockOutline className="w-5 h-5" />,
+    },
+    {
+      name: "Leads Management",
+      path: "/lawfirm/leads-management",
+      icon: <TbUsersGroup className="w-5 h-5" />,
+    },
+    {
+      name: "Document Management",
+      path: "/lawfirm/document-management",
+      icon: <IoFolderOpenOutline className="w-5 h-5" />,
+    },
+    {
+      name: "Billing And Invoicing",
+      path: "/lawfirm/billing",
+      icon: <IoWalletOutline className="w-5 h-5" />,
     },
     {
       name: "Settings",
@@ -70,11 +98,11 @@ function LawFirmLayout({ children }) {
     },
   ];
   if (!user?.member) {
-    sidebarItems?.push({
+    sidebarItems?.splice(6, 0, {
       name: "Team",
       path: "/lawfirm/team",
       icon: <UsersIcon className="w-5 h-5" />,
-    });
+    }); //0 for do not delete anything
   }
   const handleSidebarToggle = (value) => {
     setIsSidebarOpen(value);
@@ -93,22 +121,7 @@ function LawFirmLayout({ children }) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-end h-16">
               <div className="flex items-center">
-                <button className="p-2 rounded-full hover:bg-gray-100">
-                  <span className="sr-only">View notifications</span>
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                    />
-                  </svg>
-                </button>
+                <NotificationDropdown notifications={notifications} />
                 <div className="ml-3 relative">
                   <ProfileMenu userType="Law Firm" />
                 </div>

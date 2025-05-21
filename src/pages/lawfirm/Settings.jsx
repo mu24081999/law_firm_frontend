@@ -56,7 +56,6 @@ function Settings() {
   });
   const [servicesData, setServicesData] = useState([]);
   const [domain, setDomain] = useState("");
-  console.log("🚀 ~ Settings ~ domain:", domain);
   const [subdomain, setSubdomain] = useState("");
   const [logo, setLogo] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
@@ -72,28 +71,6 @@ function Settings() {
     confirmPassword: "",
     email: user?.email,
   });
-
-  const templates = [
-    {
-      id: "modern",
-      name: "Modern",
-      preview: "https://placehold.co/600x400?text=Modern+Template",
-      description:
-        "A clean, modern design with emphasis on typography and whitespace",
-    },
-    {
-      id: "professional",
-      name: "Professional",
-      preview: "https://placehold.co/600x400?text=Professional+Template",
-      description: "Traditional law firm design with a professional appearance",
-    },
-    {
-      id: "minimal",
-      name: "Minimal",
-      preview: "https://placehold.co/600x400?text=Minimal+Template",
-      description: "Minimalist design focusing on content and clarity",
-    },
-  ];
 
   const availableDomains = [
     { extension: ".com", price: "1200" },
@@ -308,7 +285,6 @@ function Settings() {
   };
 
   const handleSecurityChange = async (field) => {
-    console.log("🚀 ~ handleSecurityChange ~ field:", field);
     await setSecurity((prev) => ({
       ...prev,
       [field]: !prev[field],
@@ -316,7 +292,7 @@ function Settings() {
     const updatedSecurity = {
       twoFAenabled: !security?.twoFactorEnabled,
     };
-    dispatch(updateUserApi(token, updatedSecurity, user.id));
+    dispatch(updateUserApi(token, updatedSecurity, user.id, true));
   };
   const handleUpdateProfile = () => {
     console.log("update profile", profile);
@@ -325,12 +301,11 @@ function Settings() {
   const handleDomainSubmit = (e) => {
     e.preventDefault();
     // Handle domain submission logic here
-    console.log("Domain submitted:", domain, subdomain);
     dispatch(
       addDomainApi(token, {
         userId: user?.id,
         mainDomain: domain,
-        subDomain: subdomain,
+        subDomain: subdomain + "." + domain,
       })
     );
   };
@@ -1342,7 +1317,8 @@ function Settings() {
                                 <ol className="list-decimal list-inside space-y-3 text-gray-700">
                                   <li>
                                     <strong>
-                                      Log In to Your Domain Registrar:
+                                      Log In to Your Domain Registrar:&nbsp;Log
+                                      In to Your Domain Registrar:&nbsp;
                                     </strong>
                                     Visit your domain provider's website (e.g.,
                                     Namecheap, GoDaddy) and log into your
@@ -1351,7 +1327,7 @@ function Settings() {
 
                                   <li>
                                     <strong>
-                                      Go to Domain List / My Domains:
+                                      Go to Domain List / My Domains:&nbsp;
                                     </strong>
                                     Navigate to the section where your domains
                                     are listed and click on the one you want to
@@ -1359,7 +1335,9 @@ function Settings() {
                                   </li>
 
                                   <li>
-                                    <strong>Find Nameserver Settings:</strong>
+                                    <strong>
+                                      Find Nameserver Settings:&nbsp;
+                                    </strong>
                                     Look for a section called{" "}
                                     <span className="italic">
                                       "Nameservers"
@@ -1372,7 +1350,7 @@ function Settings() {
                                   </li>
 
                                   <li>
-                                    <strong>Select Custom DNS:</strong>
+                                    <strong>Select Custom DNS:&nbsp;</strong>
                                     Choose the option like{" "}
                                     <span className="italic">
                                       "Custom DNS"
@@ -1385,9 +1363,11 @@ function Settings() {
                                   </li>
 
                                   <li>
-                                    <strong>Enter Hosting Nameservers:</strong>
-                                    Replace the existing ones with the
-                                    nameservers your host provides. For example:
+                                    <strong>
+                                      Enter Hosting Nameservers: &nbsp;
+                                    </strong>
+                                    Replace the existing ones with these
+                                    nameservers
                                     <div className="bg-gray-100 p-2 rounded mt-1 font-mono text-sm">
                                       {typeof domainData?.nameservers ===
                                       "string"
@@ -1405,7 +1385,7 @@ function Settings() {
                                   </li>
 
                                   <li>
-                                    <strong>Save Changes:</strong>
+                                    <strong>Save Changes:&nbsp;</strong>
                                     Click <span className="italic">
                                       "Save"
                                     </span>{" "}

@@ -5,9 +5,10 @@ import {
   createUser,
   getUserSubaccounts,
   getUsers,
+  getNotifications,
 } from "../slices/users";
 import { toast } from "react-toastify";
-import { updateMe } from "../slices/auth";
+import { updateMe as updateUser } from "../slices/auth";
 const backendURL = import.meta.env.VITE_API_URL;
 
 export const getUsersApi = (token) => async (dispatch) => {
@@ -29,6 +30,60 @@ export const getUsersApi = (token) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const getUserNotifications = (token, userId) => async (dispatch) => {
+  try {
+    dispatch(userRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.get(
+      `${backendURL}/users/${userId}/notifications`,
+      config
+    );
+    if (response.data.statusCode !== 200) {
+      dispatch(invalidRequest(response.data.message));
+      return toast.error(response.data.message);
+    }
+    dispatch(getNotifications(response.data.data.notifications));
+  } catch (error) {
+    dispatch(invalidRequest(error.message));
+  }
+};
+export const updateNotification =
+  (token, userId, id, data) => async (dispatch) => {
+    try {
+      dispatch(userRequestLoading());
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": token,
+        },
+      };
+      const response = await axios.put(
+        `${backendURL}/users/${userId}/notifications/${id}`,
+        data,
+        config
+      );
+      if (response.data.statusCode !== 200) {
+        dispatch(invalidRequest(response.data.message));
+        toast.error(response.data.message);
+        return {
+          success: false,
+          message: response.data.message,
+        };
+      }
+      dispatch(getNotifications(response.data.data.notifications));
+      return {
+        success: true,
+        response: response.data.data,
+      };
+    } catch (error) {
+      dispatch(invalidRequest(error.message));
+    }
+  };
 export const updateSubscriptionReciept =
   (token, formData, query) => async (dispatch) => {
     try {
@@ -94,7 +149,7 @@ export const updateUserApi =
         return toast.error(response.data.message);
       }
       if (updateMe) {
-        dispatch(updateMe(response.data.data.userData));
+        dispatch(updateUser(response.data.data.userData));
         toast.success(response.data.message);
       } else {
         dispatch(getUsers(response.data.data.all));

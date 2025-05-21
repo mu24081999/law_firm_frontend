@@ -13,12 +13,14 @@ import Checkbox from "../../components/FormFields/Checkbox/Checkbox";
 import { FaRegEye } from "react-icons/fa";
 import Button from "../../components/Button";
 import { loginUser } from "../../redux/services/auth";
+import useSocket from "../../context/SocketContext/useSocket";
 function Login() {
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm();
+  const { pushNotification } = useSocket();
   const { firmId } = useParams();
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
@@ -40,6 +42,16 @@ function Login() {
       };
     }
     const loggedIn = await dispatch(loginUser(params));
+    const notificationParams = {
+      userId: loggedIn?.userData?.id,
+      message: "Login Success!",
+      messageType: "login",
+      description: "You are logged in areyoufiler.",
+      userType: firmId ? "client" : params?.is_team ? "team" : "lawfirm",
+    };
+    if (loggedIn?.success) {
+      await pushNotification(notificationParams);
+    }
     if (loggedIn?.success && loggedIn?.userData?.twoFAenabled) {
       navigate(`/otp?${firmId ? `firmId=${firmId}` : ""}`);
     } else {

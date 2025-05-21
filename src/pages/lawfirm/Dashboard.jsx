@@ -13,9 +13,13 @@ import TeamChat from "./TeamChat";
 import ServiceRequests from "./ServiceRequests";
 import PrivateRoute from "../components/PrivateRoute";
 import { useSelector } from "react-redux";
-import { useState } from "react";
-import { useEffect } from "react";
 import { getLatestValidSubscription } from "../../utils/validarteSubscription";
+import Notification from "./Notification";
+import BillingInvoicing from "./BillingInvoicing";
+import CaseManagement from "./CaseManagement";
+import DocumentManagement from "./DocumentManagement";
+import LeadsManagement from "./LeadsManagement";
+import KanbanWithLeads from "./Leads/KanbanWithLeads";
 function Dashboard() {
   const { user, isLoading, isAuthenticated, token } = useSelector(
     (state) => state.auth
@@ -25,6 +29,121 @@ function Dashboard() {
       {!isLoading && user?.id && (
         <LawFirmLayout>
           <Routes>
+            <Route
+              path="/leads-management"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <KanbanWithLeads />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/billing"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <BillingInvoicing />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/case-management"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <CaseManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/document-management"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <DocumentManagement />
+                </PrivateRoute>
+              }
+            />
+            {/* <Route
+              path="/leads-management"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <LeadsManagement />
+                </PrivateRoute>
+              }
+            /> */}
             <Route
               path="/"
               element={
@@ -45,6 +164,28 @@ function Dashboard() {
                   loading={isLoading}
                 >
                   <LawFirmHome />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <Notification />
                 </PrivateRoute>
               }
             />

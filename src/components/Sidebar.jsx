@@ -101,7 +101,7 @@ function Sidebar({ items, userType, firm, handleSidebarToggle }) {
                 color: firm?.sidebarTextColor || "white",
                 backgroundColor:
                   location.pathname === item.path
-                    ? firm?.sidebarHoverColor
+                    ? firm?.sidebarHoverColor || "#ffffff61"
                     : "transparent",
               }}
               onClick={() => {

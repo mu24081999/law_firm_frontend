@@ -7,6 +7,7 @@ export const authSlice = createSlice({
     isLoading: false,
     user: {},
     users: [],
+    notifications: [],
     message: "",
     error: "",
     type: "",
@@ -63,6 +64,10 @@ export const authSlice = createSlice({
       state.message = "User subaccounts fetched successfully";
       state.type = "GetUserSubaccounts";
     },
+    getNotifications: (state, action) => {
+      state.notifications = action.payload;
+      state.isLoading = false;
+    },
   },
 });
 
@@ -76,4 +81,5 @@ export const {
   deleteUser,
   getUserSubaccounts,
   getUsers,
+  getNotifications,
 } = authSlice.actions;

@@ -15,8 +15,19 @@ import { ToastContainer } from "react-toastify";
 import Pricing from "./pages/auth/Pricing";
 import PaymentConfirmationPage from "./pages/auth/PaymentConfirmationPage";
 import TermsAndConditions from "./pages/auth/Terms";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getUserNotifications } from "./redux/services/users";
 
 function App() {
+  const { user, token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (token) {
+      dispatch(getUserNotifications(token, user?.id));
+    }
+    return () => {};
+  }, [user, token, dispatch]);
   return (
     <div>
       <ToastContainer

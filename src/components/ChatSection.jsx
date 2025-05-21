@@ -101,7 +101,7 @@ function ChatSection() {
       <div
         className={`${
           selectedClient ? "sm:hidden md:block" : "block"
-        } w-full md:w-1/3 bg-white border-r border-gray-300`}
+        } w-full md:w-1/3 bg-white border-r border-gray-300 h-[87vh]`}
       >
         <header className="p-4 border-b border-gray-300 flex justify-between items-center bg-indigo-600 text-white">
           <h1 className="text-xl md:text-2xl font-semibold">Client Chat</h1>
@@ -116,7 +116,7 @@ function ChatSection() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
           />
         </div>
-        <div className="overflow-y-scroll h-[75vh] p-3">
+        <div className="overflow-y-scroll p-3">
           {/* {Array.isArray(clientsArray) &&
             clientsArray.map((client, index) => ( */}
           {getFilteredRooms()?.map((client, index) => (
@@ -150,7 +150,7 @@ function ChatSection() {
       <div
         className={`${
           selectedClient ? "block" : "hidden md:block"
-        } w-full md:w-2/3 flex flex-col`}
+        } w-full md:w-2/3 flex flex-col h-[87vh] relative`}
       >
         {selectedClient ? (
           <>
@@ -168,39 +168,53 @@ function ChatSection() {
 
             {/* Messages */}
             <div className="flex-1 sm:max-h-[60vh] lg:max-h-[75vh] overflow-scroll p-4">
-              {messagesArray?.map((message, index) => (
-                <div key={index} ref={messagesEndRef}>
-                  {message?.senderId === user?.id ? (
-                    <div className="flex justify-end mb-4">
-                      <div className="max-w-[80%] bg-indigo-500 text-white rounded-lg p-3">
-                        <p className="text-sm md:text-base">
-                          {message?.message}
-                        </p>
-                        <p className="text-xs text-white mt-1 text-right">
-                          {format(message?.createdAt, "dd MMM HH:mm a")}
-                        </p>
-                        <FilePreviewFromCloudinary files={message?.fileUrls} />
+              {messagesArray?.map((message, index) => {
+                const fileUrls =
+                  typeof message?.fileUrls === "string"
+                    ? JSON.parse(message?.fileUrls)
+                    : message?.fileUrls;
+                return (
+                  <div key={index} ref={messagesEndRef}>
+                    {message?.senderId === user?.id ? (
+                      <div className="flex justify-end mb-4">
+                        <div>
+                          {" "}
+                          {Array.isArray(fileUrls) && fileUrls?.length > 0 && (
+                            <FilePreviewFromCloudinary files={fileUrls} />
+                          )}
+                          <div className="max-w-[80%] bg-indigo-500 text-white rounded-lg p-3">
+                            <p className="text-sm md:text-base">
+                              {message?.message}
+                            </p>
+
+                            <p className="text-xs text-white mt-1 text-right">
+                              {format(message?.createdAt, "dd MMM HH:mm a")}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-start mb-4">
-                      <div className="max-w-[80%] bg-white text-gray-800 rounded-lg p-3">
-                        <p className="text-sm md:text-base">
-                          {message?.message}
-                        </p>
+                    ) : (
+                      <div className="flex justify-start mb-4">
+                        <div className="max-w-[80%] bg-white text-gray-800 rounded-lg p-3">
+                          <p className="text-sm md:text-base">
+                            {message?.message}
+                          </p>
+                          {Array.isArray(fileUrls) && fileUrls?.length > 0 && (
+                            <FilePreviewFromCloudinary files={fileUrls} />
+                          )}{" "}
+                        </div>
                         <p className="text-xs text-gray-600 mt-1 text-right">
                           {format(message?.createdAt, "dd MMM HH:mm a")}
                         </p>
-                        <FilePreviewFromCloudinary files={message?.fileUrls} />
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Input */}
-            <footer className="bg-white border-t border-gray-300 p-4 absolute bottom-0 w-full">
+            <footer className="bg-white border-t border-gray-300 p-4 w-full absolute bottom-0">
               <div className="flex flex-col gap-2">
                 {/* File Preview */}
                 {selectedFiles.length > 0 && (
@@ -216,7 +230,7 @@ function ChatSection() {
                   </div>
                 )}
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 ">
                   <input
                     type="text"
                     value={newMessage}

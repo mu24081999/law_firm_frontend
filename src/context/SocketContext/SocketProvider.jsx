@@ -5,7 +5,8 @@ import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-
+import { showNotificationToast } from "../../components/showNotificationToast";
+import notificationSound from "../../assets/notification.mp3";
 const socketURL = import.meta.env.VITE_BACKEND_URL;
 
 const SocketProvider = ({ children }) => {
@@ -14,6 +15,7 @@ const SocketProvider = ({ children }) => {
   const [me, setMe] = useState("");
   const [messagesArray, setMessagesArray] = useState([]);
   const [clientsArray, setClientsArray] = useState([]);
+  const [notificationsArray, setNotificationsArray] = useState([]);
   const [teamMessagesArray, setTeamMessagesArray] = useState([]);
   const [teamChatRooms, setTeamChatRooms] = useState([]);
   const { user, tokem } = useSelector((state) => state.auth);
@@ -28,7 +30,17 @@ const SocketProvider = ({ children }) => {
       socket.on("messages", (messages) => {
         setMessagesArray(messages);
       });
-
+      socket.on("notification", (data) => {
+        console.log("🚀 ~ socket.on ~ notifications:", data);
+        setNotificationsArray(data?.notifications);
+        const audio = new Audio(notificationSound);
+        audio.play();
+        // showNotificationToast({
+        //   type: "info",
+        //   title: data?.current?.message,
+        //   description: data?.current?.description,
+        // });
+      });
       socket.on("clients", (clients) => {
         setClientsArray(clients);
       });
@@ -51,7 +63,12 @@ const SocketProvider = ({ children }) => {
       socket.on("me", (id) => setMe(id));
     }
   }, [socket, user, dispatch]);
-
+  const pushNotification = useCallback(
+    (notificationData) => {
+      socket.emit("push-notification", notificationData);
+    },
+    [socket]
+  );
   const getRooms = useCallback(
     (userType, userId, me) => {
       socket.emit("getClients", {
@@ -129,6 +146,7 @@ const SocketProvider = ({ children }) => {
       getTeamChatRooms,
       sendTeamMessage,
       getTeamMessages,
+      pushNotification,
     }),
     [
       me,
@@ -142,6 +160,7 @@ const SocketProvider = ({ children }) => {
       sendMessage,
       sendTeamMessage,
       getTeamMessages,
+      pushNotification,
     ]
   );
 

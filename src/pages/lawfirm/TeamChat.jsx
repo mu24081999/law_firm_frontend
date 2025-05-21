@@ -3,6 +3,7 @@ import useSocket from "../../context/SocketContext/useSocket";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import FilePreviewFromCloudinary from "../../components/FilePreview";
 
 function TeamChat() {
   const { firmId } = useParams();
@@ -39,18 +40,32 @@ function TeamChat() {
     }
   }, [user]);
 
-  const handleSendMessage = () => {
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () =>
+        resolve({
+          name: file.name,
+          type: file.type,
+          base64: reader.result,
+        });
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+  const handleSendMessage = async () => {
     if (newMessage.trim() === "" && selectedFiles.length === 0) return;
-
+    const filesBase64 = await Promise.all(
+      selectedFiles.map((file) => convertToBase64(file))
+    );
     const msg = {
       senderId: user?.member ? user.member.id : user?.id,
       receiverId: selectedClient?.id,
       message: newMessage.trim(),
       recieverType: selectedClient?.ownerId ? "team" : "firm",
       senderType: user?.member?.ownerId ? "team" : "firm",
-      files: selectedFiles, // Backend must handle this
+      files: filesBase64, // Backend must handle this
     };
-
     sendTeamMessage(msg);
     setNewMessage("");
     setSelectedFiles([]);
@@ -160,6 +175,12 @@ function TeamChat() {
                       }`}
                     >
                       <p>{message.message}</p>
+                      {Array.isArray(message?.fileUrls) &&
+                        message?.fileUrls?.length > 0 && (
+                          <FilePreviewFromCloudinary
+                            files={message?.fileUrls}
+                          />
+                        )}
                       <p
                         className={`text-xs float-end ${
                           isMe ? "text-white" : "text-gray-500"

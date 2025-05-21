@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import Button from "../../components/Button";
 import FileField from "../../components/FormFields/FileField/FileField";
 import { useForm } from "react-hook-form";
+import useSocket from "../../context/SocketContext/useSocket";
 function UserServices() {
   const {
     handleSubmit,
@@ -20,6 +21,7 @@ function UserServices() {
     formState: { errors },
   } = useForm();
   const { firmId } = useParams();
+  const { pushNotification } = useSocket();
   const dispatch = useDispatch();
   const [selectedService, setSelectedService] = useState(null);
   const { token, user } = useSelector((state) => state.auth);
@@ -36,6 +38,24 @@ function UserServices() {
     };
     const done = await dispatch(addServiceRequestApi(token, params));
     if (done) {
+      const notificationParams = {
+        userId: firmId,
+        description: `${user?.email} has requested ${selectedService?.name} service.`,
+        message: `You've a service request.`,
+        userType: "lawfirm",
+        messageType: "service-request",
+        link: "/lawfirm/service-requests",
+      };
+      const notificationParamsTwo = {
+        userId: user?.id,
+        description: `You've requested ${selectedService?.name} service.`,
+        message: `Servive request.`,
+        userType: "client",
+        messageType: "service-request",
+        link: "/user/requests",
+      };
+      await pushNotification(notificationParams);
+      await pushNotification(notificationParamsTwo);
       setIsOpen(false);
       setPaymentFormOpen(true);
     }
