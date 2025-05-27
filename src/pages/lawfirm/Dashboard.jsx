@@ -20,6 +20,15 @@ import CaseManagement from "./CaseManagement";
 import DocumentManagement from "./DocumentManagement";
 import LeadsManagement from "./LeadsManagement";
 import KanbanWithLeads from "./Leads/KanbanWithLeads";
+import CalendarScheduling from "./CalendarScheduling";
+import TaskManagement from "./TaskManagement";
+import ReportingAnalytics from "./ReportingAnalytics";
+import PayrollDashboard from "./Payroll/Dashboard";
+import EmployeeDetail from "./Payroll/EmployeeDetail";
+import Employees from "./Payroll/Employees";
+import PayrollRun from "./Payroll/PayrollRun";
+import PayrollHistory from "./Payroll/PayrollHistory";
+import Reports from "./Payroll/Reports";
 function Dashboard() {
   const { user, isLoading, isAuthenticated, token } = useSelector(
     (state) => state.auth
@@ -29,6 +38,213 @@ function Dashboard() {
       {!isLoading && user?.id && (
         <LawFirmLayout>
           <Routes>
+            <Route
+              path="/"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <LawFirmHome />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/payroll/dashboard"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <PayrollDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/payroll/employees"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <Employees />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/payroll/run"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <PayrollRun />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/payroll/history"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <PayrollHistory />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/payroll/reports"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <Reports />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <CalendarScheduling />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/task-management"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <TaskManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/reporting-analytics"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <ReportingAnalytics />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/leads-management"
               element={
@@ -121,8 +337,8 @@ function Dashboard() {
                 </PrivateRoute>
               }
             />
-            {/* <Route
-              path="/leads-management"
+            <Route
+              path="/leads"
               element={
                 <PrivateRoute
                   isAuthenticated={isAuthenticated}
@@ -143,30 +359,8 @@ function Dashboard() {
                   <LeadsManagement />
                 </PrivateRoute>
               }
-            /> */}
-            <Route
-              path="/"
-              element={
-                <PrivateRoute
-                  isAuthenticated={isAuthenticated}
-                  isSubscribed={
-                    getLatestValidSubscription(user?.subscriptions)?.isValid
-                  }
-                  subscriptionStatus={
-                    getLatestValidSubscription(user?.subscriptions)
-                      ?.latestSubscription?.subscriptionReciept?.status ===
-                    "confirm"
-                      ? "active"
-                      : "pending"
-                  }
-                  // subscription={}
-                  emailVerified={user?.verified}
-                  loading={isLoading}
-                >
-                  <LawFirmHome />
-                </PrivateRoute>
-              }
             />
+
             <Route
               path="/notifications"
               element={

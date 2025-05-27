@@ -90,7 +90,7 @@ function Sidebar({ items, userType, firm, handleSidebarToggle }) {
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
-
+        {/* 
         <nav className="px-2 py-4 h-[calc(100vh-4rem)] overflow-y-auto">
           {items.map((item) => (
             <Link
@@ -112,6 +112,74 @@ function Sidebar({ items, userType, firm, handleSidebarToggle }) {
               {item.icon}
               <span className="ml-3">{item.name}</span>
             </Link>
+          ))}
+        </nav> */}
+        <nav className="px-2 py-4 h-[calc(100vh-4rem)] overflow-y-auto">
+          {items.map((item) => (
+            <div key={item.path || item.name} className="mb-1">
+              {/* Parent Link (if it has a path) */}
+              {item.path ? (
+                <Link
+                  to={item.path}
+                  className={`flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200`}
+                  style={{
+                    color: firm?.sidebarTextColor || "white",
+                    backgroundColor:
+                      location.pathname === item.path
+                        ? firm?.sidebarHoverColor || "#ffffff61"
+                        : "transparent",
+                  }}
+                  onClick={() => {
+                    if (window.innerWidth < 768) {
+                      setIsOpen(false);
+                      handleSidebarToggle(false);
+                    }
+                  }}
+                >
+                  {item.icon}
+                  <span className="ml-3">{item.name}</span>
+                </Link>
+              ) : (
+                <div
+                  className="flex items-center px-4 py-2 text-sm font-semibold rounded-lg"
+                  style={{
+                    color: firm?.sidebarTextColor || "white",
+                  }}
+                >
+                  {item.icon}
+                  <span className="ml-3">{item.name}</span>
+                </div>
+              )}
+
+              {/* Children */}
+              {item.children && item.children.length > 0 && (
+                <div className="ml-8 mt-1">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.path}
+                      to={child.path}
+                      className={`flex items-center px-3 py-1 text-sm rounded-md transition-colors duration-200`}
+                      style={{
+                        color: firm?.sidebarTextColor || "white",
+                        backgroundColor:
+                          location.pathname === child.path
+                            ? firm?.sidebarHoverColor || "#ffffff61"
+                            : "transparent",
+                      }}
+                      onClick={() => {
+                        if (window.innerWidth < 768) {
+                          setIsOpen(false);
+                          handleSidebarToggle(false);
+                        }
+                      }}
+                    >
+                      {child.icon}
+                      <span className="ml-2">{child.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
       </div>

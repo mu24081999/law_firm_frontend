@@ -35,6 +35,36 @@ export const createInvoice = (token, data) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const sendInvoiceEmail = (token, data) => async (dispatch) => {
+  try {
+    dispatch(billingInvoicesRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.post(
+      `${backendURL}/invoices/send-invoice-email`,
+      data,
+      config
+    );
+    if (!response.data.statusCode === 200) {
+      dispatch(invalidRequest(response.data.message));
+      toast.error(response.data.message);
+      return {
+        success: false,
+        error: response.data.message,
+      };
+    }
+    toast.success(response.data.message);
+    return {
+      success: true,
+    };
+  } catch (e) {
+    dispatch(invalidRequest(e.message));
+  }
+};
 export const getUserInvoicesApi = (token, query) => async (dispatch) => {
   try {
     dispatch(billingInvoicesRequestLoading());

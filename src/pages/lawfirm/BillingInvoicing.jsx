@@ -10,11 +10,15 @@ import {
 import CreditCardManager from "./components/CreditCardManager";
 import InvoiceCreator from "./components/InvoiceForm";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserInvoicesApi } from "../../redux/services/billingInvoice";
+import {
+  getUserInvoicesApi,
+  sendInvoiceEmail,
+} from "../../redux/services/billingInvoice";
 import { getClientsApi } from "../../redux/services/firm";
 function BillingInvoicing() {
   const { token, user } = useSelector((state) => state.auth);
   const { invoices } = useSelector((state) => state.billing);
+  const { clients } = useSelector((state) => state.firm);
 
   const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState("invoices");
@@ -89,7 +93,23 @@ function BillingInvoicing() {
       .reduce((sum, invoice) => sum + invoice.amount, 0)
       .toLocaleString("en-US", { style: "currency", currency: "USD" });
   };
-
+  const handleSendInvoice = (invoice) => {
+    const dueDate = new Date(invoice?.dueDate);
+    // Get month and year
+    const billingMonth = dueDate.toLocaleString("default", { month: "long" }); // e.g., "May"
+    const billingYear = dueDate.getFullYear(); // 2025
+    const params = {
+      userId: user?.id,
+      clientId: invoice?.clientId,
+      invoiceNumber: invoice?.invoiceNo,
+      invoiceDate: invoice?.createdAt,
+      billingMonth: billingMonth,
+      billingYear: billingYear,
+      amount: invoice?.amount,
+      description: invoice?.description,
+    };
+    dispatch(sendInvoiceEmail(token, params));
+  };
   const creditCardPaymentInstructions = `
   Please use your credit card to complete the payment securely.
   
@@ -242,7 +262,10 @@ function BillingInvoicing() {
                       <button className="text-primary-600 hover:text-primary-800">
                         <ArrowDownTrayIcon className="w-5 h-5 inline" />
                       </button>
-                      <button className="text-gray-600 hover:text-gray-800">
+                      <button
+                        className="text-gray-600 hover:text-gray-800"
+                        onClick={() => handleSendInvoice(invoice)}
+                      >
                         <EnvelopeIcon className="w-5 h-5 inline" />
                       </button>
                     </td>

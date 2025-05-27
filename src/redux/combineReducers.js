@@ -17,6 +17,9 @@ import emailAccountReducer from "./slices/emailAccount";
 import emailTemplateReducer from "./slices/emailTemplate";
 import bankAccountReducer from "./slices/bankAccount";
 import billingInvoiceReducer from "./slices/billingInvoice";
+import boardReducer from "./slices/board";
+import caseReducer from "./slices/case";
+import eventReducer from "./slices/event";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
@@ -37,4 +40,7 @@ export const rootReducer = combineReducers({
   emailTemplate: emailTemplateReducer,
   bankAccount: bankAccountReducer,
   billing: billingInvoiceReducer,
+  board: boardReducer,
+  case: caseReducer,
+  event: eventReducer,
 });
