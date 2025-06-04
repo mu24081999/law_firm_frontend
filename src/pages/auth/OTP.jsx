@@ -6,7 +6,7 @@ import Button from "../../components/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { verifyOTPRec } from "../../redux/services/auth";
 
-function ForgotPassword() {
+function OTP() {
   const {
     handleSubmit,
     control,
@@ -95,4 +95,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;
+export default OTP;

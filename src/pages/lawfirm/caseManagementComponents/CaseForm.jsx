@@ -1,24 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-const initialState = {
-  title: "",
-  category: "",
-  case_number: "",
-  client_name: "",
-  opponent_name: "",
-  court_name: "",
-  case_type: "Civil",
-  status: "open",
-  filing_date: "",
-  hearing_date: "",
-  next_action: "",
-  assigned_to: "",
-  notes: "",
-  priority: "Medium",
-};
 
-const CaseForm = ({ onSubmit }) => {
-  const [formData, setFormData] = useState(initialState);
+const CaseForm = ({ onSubmit, selectedCase }) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    category: "",
+    case_number: "",
+    client_name: "",
+    opponent_name: "",
+    court_name: "",
+    case_type: "Civil",
+    status: "open",
+    filing_date: "",
+    hearing_date: "",
+    next_action: "",
+    assigned_to: "",
+    notes: "",
+    priority: "Medium",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +28,12 @@ const CaseForm = ({ onSubmit }) => {
     e.preventDefault();
     onSubmit(formData);
   };
-
+  useEffect(() => {
+    if (selectedCase?.id) {
+      setFormData(selectedCase);
+    }
+    return () => {};
+  }, [selectedCase]);
   return (
     <div className="p-6">
       <form

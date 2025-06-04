@@ -18,8 +18,7 @@ const Modal = ({
   return (
     <div
       className={`
-      ${noStartMargin ? "" : "ml-64"}
-       :bg-gray-800 :text-white backdrop-blur-sm fixed inset-0 flex justify-center items-start md:items-center md:pt-0 bg-gray-800 bg-opacity-30 transition-opacity duration-1000 ${
+       :bg-gray-800 :text-white sm:ml-0 lg:ml-64 backdrop-blur-sm fixed inset-0 flex justify-center items-start md:items-center md:pt-0 bg-gray-800 bg-opacity-30 transition-opacity duration-1000 ${
          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
        }`}
     >

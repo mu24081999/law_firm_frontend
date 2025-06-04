@@ -24,7 +24,7 @@ import {
 } from "react-icons/io5";
 import { TbUsersGroup } from "react-icons/tb";
 import { FaMoneyCheckDollar } from "react-icons/fa6"; // Payroll icon
-import { FaCalendar, FaRegCalendarAlt } from "react-icons/fa";
+import { FaCalendar, FaRegCalendarAlt, FaTasks } from "react-icons/fa";
 
 function LawFirmLayout({ children }) {
   const { user } = useSelector((state) => state.auth);
@@ -87,11 +87,11 @@ function LawFirmLayout({ children }) {
       path: "/lawfirm/calendar",
       icon: <FaRegCalendarAlt className="w-5 h-5" />,
     },
-    // {
-    //   name: "Task Management",
-    //   path: "/lawfirm/task-management",
-    //   icon: <IoFolderOpenOutline className="w-5 h-5" />,
-    // },
+    {
+      name: "Task Management",
+      path: "/lawfirm/task-management",
+      icon: <FaTasks className="w-5 h-5" />,
+    },
     // {
     //   name: "Reporting And Analytics",
     //   path: "/lawfirm/reporting-analytics",

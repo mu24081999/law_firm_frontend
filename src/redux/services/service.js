@@ -106,6 +106,31 @@ export const addServiceFieldsApi = (token, data) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const updateServicePermissionApi =
+  (token, data, per_id) => async (dispatch) => {
+    try {
+      dispatch(serviceRequestLoading());
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": token,
+        },
+      };
+      const response = await axios.put(
+        `${backendURL}/services/service-permissions/${per_id}`,
+        data,
+        config
+      );
+      if (!response.data.statusCode === 200) {
+        dispatch(invalidRequest(response.data.message));
+        return toast.error(response.data.message);
+      }
+      dispatch(getServices(response.data.data.services));
+      toast.success(response.data.message);
+    } catch (e) {
+      dispatch(invalidRequest(e.message));
+    }
+  };
 export const updateMultiServiceFields = (token, data) => async (dispatch) => {
   try {
     dispatch(serviceRequestLoading());

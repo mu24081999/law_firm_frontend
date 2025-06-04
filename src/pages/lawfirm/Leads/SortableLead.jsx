@@ -45,12 +45,15 @@ const SortableLead = ({ lead, boardId, onDelete }) => {
     >
       {/* Dropdown icon */}
       <div className="absolute top-2 right-2" ref={dropdownRef}>
-        <button
-          onClick={() => setMenuOpen(true)}
+        {/* <button
+          onClick={() => {
+            console.log("click");
+            setMenuOpen(!menuOpen);
+          }}
           className="p-1 rounded-full hover:bg-gray-100"
         >
           <MoreVertical size={18} />
-        </button>
+        </button> */}
         {menuOpen && (
           <div className="absolute right-0 mt-1 w-28 bg-white border rounded shadow-md z-10">
             <button

@@ -11,10 +11,16 @@ import CreditCardManager from "./components/CreditCardManager";
 import InvoiceCreator from "./components/InvoiceForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  downloadInvoice,
   getUserInvoicesApi,
   sendInvoiceEmail,
 } from "../../redux/services/billingInvoice";
 import { getClientsApi } from "../../redux/services/firm";
+import { format } from "date-fns";
+import Modal from "../../components/Modal";
+import Invoice from "./BlillingComponents/Invoice";
+import { FaWhatsapp } from "react-icons/fa";
+
 function BillingInvoicing() {
   const { token, user } = useSelector((state) => state.auth);
   const { invoices } = useSelector((state) => state.billing);
@@ -22,68 +28,11 @@ function BillingInvoicing() {
 
   const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState("invoices");
-
-  // const invoices = [
-  //   {
-  //     id: "INV-1001",
-  //     client: "Johnson & Sons",
-  //     case: "Corporate Restructuring",
-  //     amount: 2450.0,
-  //     status: "Paid",
-  //     date: "2023-10-10",
-  //     dueDate: "2023-10-25",
-  //     paymentMethod: "Bank Transfer",
-  //     paymentDate: "2023-10-15",
-  //   },
-  //   {
-  //     id: "INV-1002",
-  //     client: "Maria Rodriguez",
-  //     case: "Divorce Settlement",
-  //     amount: 1800.0,
-  //     status: "Pending",
-  //     date: "2023-10-12",
-  //     dueDate: "2023-10-27",
-  //     paymentMethod: "Pending",
-  //     paymentDate: null,
-  //   },
-  //   {
-  //     id: "INV-1003",
-  //     client: "Wilson Enterprises",
-  //     case: "Contract Review",
-  //     amount: 975.0,
-  //     status: "Overdue",
-  //     date: "2023-09-28",
-  //     dueDate: "2023-10-13",
-  //     paymentMethod: "Pending",
-  //     paymentDate: null,
-  //   },
-  //   {
-  //     id: "INV-1004",
-  //     client: "Robert Smith",
-  //     case: "Estate Planning",
-  //     amount: 3200.0,
-  //     status: "Paid",
-  //     date: "2023-10-05",
-  //     dueDate: "2023-10-20",
-  //     paymentMethod: "Bank Transfer",
-  //     paymentDate: "2023-10-18",
-  //   },
-  //   {
-  //     id: "INV-1005",
-  //     client: "Tech Solutions Inc.",
-  //     case: "Patent Application",
-  //     amount: 4250.0,
-  //     status: "Pending",
-  //     date: "2023-10-15",
-  //     dueDate: "2023-10-30",
-  //     paymentMethod: "Pending",
-  //     paymentDate: null,
-  //   },
-  // ];
-
+  const [selectedInvoice, setSelectedInvoice] = useState({});
+  const [isOpen, setIsOpen] = useState();
   const filterInvoicesByStatus = (status) => {
     if (status === "all") return invoices;
-    return invoices.filter(
+    return invoices?.filter(
       (invoice) => invoice.status.toLowerCase() === status.toLowerCase()
     );
   };
@@ -125,6 +74,31 @@ function BillingInvoicing() {
   
   If you face any issues processing the payment, please contact our support team.
   `;
+  const sendInvoiceOnWhatsApp = (clientPhoneNumber, invoiceData) => {
+    const message = `
+  Hello ${invoiceData.clientName},
+  
+  Here is your invoice from ${invoiceData.company}:
+  
+  - Invoice Number: ${invoiceData.invoiceNumber}
+  - Invoice Date: ${invoiceData.invoiceDate}
+  - Billing Month: ${invoiceData.billingMonth} ${invoiceData.billingYear}
+  - Description: ${invoiceData.description || "N/A"}
+  - Amount Due: $${Number(invoiceData.amount).toFixed(2)}
+  
+  Please make the payment at your earliest convenience.
+  
+  Thank you!
+  `;
+
+    const encodedMessage = encodeURIComponent(message);
+    const formattedPhone = clientPhoneNumber?.replace(/\D/g, ""); // remove non-numeric chars
+    console.log("🚀 ~ sendInvoiceOnWhatsApp ~ formattedPhone:", formattedPhone);
+    const whatsappLink = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
+
+    window.open(whatsappLink, "_blank");
+  };
+
   useEffect(() => {
     const query = `userId=${user?.id}`;
     dispatch(getUserInvoicesApi(token, query));
@@ -165,7 +139,7 @@ function BillingInvoicing() {
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">
         <nav className="flex space-x-6">
-          {["invoices", "payments", "instructions"].map((tab) => (
+          {["invoices"].map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
@@ -223,6 +197,9 @@ function BillingInvoicing() {
                     Amount
                   </th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Phone
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
                     Status
                   </th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
@@ -255,11 +232,21 @@ function BillingInvoicing() {
                     <td className="px-4 py-4 text-sm font-semibold text-gray-900">
                       ${invoice?.amount}
                     </td>
+                    <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                      {invoice?.phone}
+                    </td>
                     <td className="px-4 py-4 text-sm">
                       <StatusBadge status={invoice?.status} />
                     </td>
                     <td className="px-4 py-4 text-right space-x-2">
-                      <button className="text-primary-600 hover:text-primary-800">
+                      <button
+                        className="text-primary-600 hover:text-primary-800"
+                        onClick={() => {
+                          setSelectedInvoice(invoice);
+                          setIsOpen(true);
+                          // dispatch(downloadInvoice(token, params));
+                        }}
+                      >
                         <ArrowDownTrayIcon className="w-5 h-5 inline" />
                       </button>
                       <button
@@ -267,6 +254,25 @@ function BillingInvoicing() {
                         onClick={() => handleSendInvoice(invoice)}
                       >
                         <EnvelopeIcon className="w-5 h-5 inline" />
+                      </button>
+                      <button
+                        className="text-gray-600 hover:text-gray-800"
+                        onClick={() =>
+                          sendInvoiceOnWhatsApp(invoice?.phone, {
+                            clientName: invoice?.clientName,
+                            company: invoice?.company,
+                            invoiceNumber: `INV-` + invoice?.id?.slice(0, 4),
+                            invoiceDate: invoice?.dueDate,
+                            billingMonth: new Date(
+                              invoice?.dueDate
+                            ).getUTCMonth(),
+                            billingYear: new Date(invoice)?.getFullYear(),
+                            description: invoice?.description,
+                            amount: invoice?.amount,
+                          })
+                        }
+                      >
+                        <FaWhatsapp className="w-5 h-5 inline" />
                       </button>
                     </td>
                   </tr>
@@ -276,25 +282,24 @@ function BillingInvoicing() {
           </Card>
         </>
       )}
-
+      {/* 
       {selectedTab === "payments" && (
         <Card>
           <div>
             <CreditCardManager />
           </div>
         </Card>
-      )}
-
-      {selectedTab === "instructions" && (
-        <Card>
-          <h3 className="text-lg font-semibold mb-2">
-            Card Information Putting Instructions
-          </h3>
-          <pre className="bg-gray-100 p-4 rounded text-sm text-gray-800 whitespace-pre-wrap">
-            {creditCardPaymentInstructions}
-          </pre>
-        </Card>
-      )}
+      )} */}
+      <div>
+        <Modal
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          title="Invoice Details"
+          noStartMargin={true}
+          size="md"
+          body={<Invoice invoiceData={selectedInvoice} />}
+        />
+      </div>
     </div>
   );
 }

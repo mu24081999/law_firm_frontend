@@ -20,6 +20,7 @@ import billingInvoiceReducer from "./slices/billingInvoice";
 import boardReducer from "./slices/board";
 import caseReducer from "./slices/case";
 import eventReducer from "./slices/event";
+import taskReducer from "./slices/task";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
@@ -43,4 +44,5 @@ export const rootReducer = combineReducers({
   board: boardReducer,
   case: caseReducer,
   event: eventReducer,
+  task: taskReducer,
 });

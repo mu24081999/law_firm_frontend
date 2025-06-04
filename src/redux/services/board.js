@@ -71,6 +71,29 @@ export const addLeadApi = (token, formData) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const deleteLeadApi = (token, leadId, userId) => async (dispatch) => {
+  try {
+    dispatch(boardRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.delete(
+      `${backendURL}/leads/${leadId}/${userId}`,
+      config
+    );
+    if (!response.data.statusCode === 200) {
+      dispatch(invalidRequest(response.data.message));
+      return toast.error(response.data.message);
+    }
+    dispatch(getLeads(response.data.data.leads));
+    return toast.success(response.data.message);
+  } catch (e) {
+    dispatch(invalidRequest(e.message));
+  }
+};
 export const updateLead = (token, formData, id) => async (dispatch) => {
   try {
     dispatch(boardRequestLoading());
@@ -114,3 +137,28 @@ export const addBoardApi = (token, formData) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const updateBoardApi =
+  (token, formData, boardId) => async (dispatch) => {
+    try {
+      dispatch(boardRequestLoading());
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": token,
+        },
+      };
+      const response = await axios.put(
+        `${backendURL}/boards/${boardId}`,
+        formData,
+        config
+      );
+      if (!response.data.statusCode === 200) {
+        dispatch(invalidRequest(response.data.message));
+        return toast.error(response.data.message);
+      }
+      dispatch(getBoards(response.data.data.boards));
+      return toast.success(response.data.message);
+    } catch (e) {
+      dispatch(invalidRequest(e.message));
+    }
+  };

@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { createInvoice } from "../../../redux/services/billingInvoice";
 import { getClientsApi } from "../../../redux/services/firm";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+
 const InvoiceForm = ({ onSubmit, clients }) => {
   const { token, user } = useSelector((state) => state.auth);
   const [selectedClient, setSelectedClient] = useState();
@@ -11,10 +14,12 @@ const InvoiceForm = ({ onSubmit, clients }) => {
     userId: user?.id,
     invoiceNo: "",
     clientName: "",
+    phone: "",
     case: "",
-    dueDate: new Date().toISOString().slice(0, 10), // today's date
+    dueDate: new Date().toISOString().slice(0, 10),
     amount: "",
     description: "",
+    status: "unpaid", // default
   });
 
   const [errors, setErrors] = useState({});
@@ -29,6 +34,9 @@ const InvoiceForm = ({ onSubmit, clients }) => {
       errs.clientName = "Client name is required";
 
     if (!formData.case?.trim()) errs.case = "Case is required";
+    if (!formData.phone?.trim()) {
+      errs.phone = "Phone number is required";
+    }
 
     if (!formData.dueDate) errs.dueDate = "Due date is required";
 
@@ -72,7 +80,7 @@ const InvoiceForm = ({ onSubmit, clients }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-lg rounded-lg p-6 space-y-4 mx-auto"
+      className="bg-white shadow-lg rounded-lg p-6  space-y-4 mx-auto"
     >
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">
         Create Monthly Invoice
@@ -131,6 +139,33 @@ const InvoiceForm = ({ onSubmit, clients }) => {
         />
         {errors.clientName && (
           <p className="text-red-600 text-sm mt-1">{errors.clientName}</p>
+        )}
+      </label>
+      <label className="block">
+        <span className="text-gray-700">Phone Number</span>
+        <PhoneInput
+          country={"pk"}
+          value={formData.phone}
+          onChange={(phone) => {
+            console.log(phone);
+            setFormData((prev) => ({ ...prev, phone }));
+          }}
+          containerClass="w-full"
+          inputClass={`w-full h-10 py-2 pl-10 pr-3 rounded-md border ${
+            errors.phone ? "border-red-500" : "border-gray-300"
+          } focus:outline-none`}
+          inputStyle={{
+            width: "100%",
+            height: "43px",
+            borderRadius: "0.375rem",
+            border: errors.phone ? "1px solid red" : "1px solid #D1D5DB",
+            padding: "0.5rem",
+          }}
+          buttonClass="border-r border-gray-300"
+        />
+
+        {errors.phone && (
+          <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
         )}
       </label>
 
@@ -211,7 +246,7 @@ const InvoiceForm = ({ onSubmit, clients }) => {
 
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        className="w-32 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
       >
         Create Invoice
       </button>

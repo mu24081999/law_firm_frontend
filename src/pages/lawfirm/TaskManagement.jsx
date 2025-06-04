@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import PageHeader from "../components/common/PageHeader";
 import Card from "../components/common/Card";
@@ -15,135 +15,66 @@ import {
   ExclamationCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addTaskApi,
+  deleteTaskApi,
+  getUserTasksApi,
+  updateTaskApi,
+} from "../../redux/services/task";
+import { getUserCasesApi } from "../../redux/services/case";
+import { getUserMembersApi } from "../../redux/services/team";
 
 function TaskManagement() {
+  const dispatch = useDispatch();
+  const { user, token } = useSelector((state) => state.auth);
+  const { tasks: tasksData } = useSelector((state) => state.task);
   const [viewMode, setViewMode] = useState("kanban");
-
+  const { members } = useSelector((state) => state.team);
+  const { cases } = useSelector((state) => state.case);
   // Mock users data
   const users = [
     { id: "user1", name: "John Doe", avatar: null, initials: "JD" },
     { id: "user2", name: "Jane Smith", avatar: null, initials: "JS" },
     { id: "user3", name: "Mike Brown", avatar: null, initials: "MB" },
   ];
-
-  // Mock tasks data
-  const initialTasks = [
-    {
-      id: "task1",
-      title: "Review Smith contract",
-      description: "Check all clauses and provide feedback",
-      status: "To Do",
-      priority: "High",
-      dueDate: "2023-10-25",
-      assignedTo: "user1",
-      case: "Smith vs. Anderson",
-    },
-    {
-      id: "task2",
-      title: "Draft motion for Johnson case",
-      description: "Prepare motion to dismiss",
-      status: "In Progress",
-      priority: "High",
-      dueDate: "2023-10-22",
-      assignedTo: "user2",
-      case: "Johnson Corporation",
-    },
-    {
-      id: "task3",
-      title: "Schedule client meeting",
-      description: "Set up Zoom call with Wilson client",
-      status: "To Do",
-      priority: "Medium",
-      dueDate: "2023-10-26",
-      assignedTo: "user3",
-      case: "Wilson Estate",
-    },
-    {
-      id: "task4",
-      title: "Prepare for court hearing",
-      description: "Gather all necessary documents",
-      status: "In Progress",
-      priority: "High",
-      dueDate: "2023-10-23",
-      assignedTo: "user1",
-      case: "Martin Injury",
-    },
-    {
-      id: "task5",
-      title: "Research legal precedents",
-      description: "Find relevant cases for the Thompson case",
-      status: "In Progress",
-      priority: "Medium",
-      dueDate: "2023-10-28",
-      assignedTo: "user3",
-      case: "Thompson Custody",
-    },
-    {
-      id: "task6",
-      title: "File court documents",
-      description: "Submit all paperwork for Smith case",
-      status: "Review",
-      priority: "Medium",
-      dueDate: "2023-10-21",
-      assignedTo: "user2",
-      case: "Smith vs. Anderson",
-    },
-    {
-      id: "task7",
-      title: "Client intake process",
-      description: "Complete new client onboarding",
-      status: "Completed",
-      priority: "Low",
-      dueDate: "2023-10-18",
-      assignedTo: "user1",
-      case: "New Clients",
-    },
-    {
-      id: "task8",
-      title: "Update billing records",
-      description: "Enter billable hours for the week",
-      status: "Completed",
-      priority: "Low",
-      dueDate: "2023-10-19",
-      assignedTo: "user2",
-      case: "Administrative",
-    },
-  ];
-
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState([]);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
-    status: "To Do",
-    priority: "Medium",
+    status: "to-do",
+    priority: "medium",
     dueDate: "",
-    assignedTo: "",
+    assignTo: "",
     case: "",
   });
-
+  const [filterCaseName, setFilterCaseName] = useState("All Cases");
+  const [filterUser, setFilterUser] = useState("All Users");
+  const [filterPriority, setFilterPriority] = useState("All Priorities");
+  const [selectedTab, setSelectedTab] = useState("all");
   // Get kanban columns
   const kanbanColumns = [
     {
       id: "todo",
       title: "To Do",
-      tasks: tasks.filter((task) => task.status === "To Do"),
+      tasks: tasks?.filter((task) => task.status === "to-do"),
     },
     {
       id: "inprogress",
       title: "In Progress",
-      tasks: tasks.filter((task) => task.status === "In Progress"),
+      tasks: tasks?.filter((task) => task.status === "in-progress"),
     },
     {
       id: "review",
       title: "Review",
-      tasks: tasks.filter((task) => task.status === "Review"),
+      tasks: tasks?.filter((task) => task.status === "review"),
     },
     {
       id: "completed",
       title: "Completed",
-      tasks: tasks.filter((task) => task.status === "Completed"),
+      tasks: tasks?.filter((task) => task.status === "completed"),
     },
   ];
 
@@ -179,11 +110,21 @@ function TaskManagement() {
 
   // Handle moving a task to another column
   const handleMoveTask = (taskId, newStatus) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
+    dispatch(
+      updateTaskApi(
+        token,
+        {
+          status: newStatus,
+        },
+        taskId
       )
     );
+
+    // setTasks(
+    //   tasks.map((task) =>
+    //     task.id === taskId ? { ...task, status: newStatus } : task
+    //   )
+    // );
   };
 
   // Handle new task form
@@ -200,15 +141,20 @@ function TaskManagement() {
   // Handle task creation or update
   const handleSaveTask = () => {
     if (editingTask) {
-      setTasks(
-        tasks.map((task) => (task.id === editingTask.id ? editingTask : task))
-      );
+      const task = {
+        ...editingTask,
+      };
+      dispatch(updateTaskApi(token, task, editingTask?.id));
+      // setTasks(
+      //   tasks.map((task) => (task.id === editingTask.id ? editingTask : task))
+      // );
       setEditingTask(null);
     } else {
       const task = {
         ...newTask,
-        id: uuidv4(),
+        userId: user?.id,
       };
+      dispatch(addTaskApi(token, task));
       setTasks([...tasks, task]);
       setNewTask({
         title: "",
@@ -216,7 +162,7 @@ function TaskManagement() {
         status: "To Do",
         priority: "Medium",
         dueDate: "",
-        assignedTo: "",
+        assignTo: "",
         case: "",
       });
     }
@@ -233,7 +179,30 @@ function TaskManagement() {
   // Delete a task
   const handleDeleteTask = (taskId) => {
     setTasks(tasks.filter((task) => task.id !== taskId));
+    dispatch(deleteTaskApi(token, taskId));
   };
+  const filteredTasks = tasksData?.filter((caseItem) => {
+    const statusMatch =
+      selectedTab === "open"
+        ? caseItem.status === "open"
+        : selectedTab === "on-hold"
+        ? caseItem.status === "on-hold"
+        : selectedTab === "closed"
+        ? caseItem.status === "closed"
+        : true;
+
+    const caseMatch =
+      filterCaseName === "All Cases" || caseItem?.title === filterCaseName;
+
+    const userMatch =
+      filterUser === "All Users" || caseItem?.assigned_user === filterUser;
+
+    const priorityMatch =
+      filterPriority === "All Priorities" ||
+      caseItem?.priority === filterPriority;
+
+    return statusMatch && caseMatch && userMatch && priorityMatch;
+  });
 
   // Get user by ID
   const getUserById = (userId) => {
@@ -245,7 +214,19 @@ function TaskManagement() {
     setEditingTask(null);
     setShowTaskModal(true);
   };
-
+  useEffect(() => {
+    dispatch(getUserTasksApi(token, user?.id));
+  }, [dispatch, token, user]);
+  useEffect(() => {
+    if (Array.isArray(tasksData) && tasksData?.length > 0) {
+      setTasks(tasksData);
+    }
+    return () => {};
+  }, [tasksData]);
+  useEffect(() => {
+    dispatch(getUserCasesApi(token, user?.id));
+    dispatch(getUserMembersApi(token, user?.id));
+  }, [dispatch, token, user]);
   return (
     <div>
       <PageHeader
@@ -253,7 +234,7 @@ function TaskManagement() {
         subtitle="Manage your tasks, track progress, and improve your team's productivity"
         actions={
           <button
-            className="btn btn-primary inline-flex items-center"
+            className="bg-blue-500 text-white float-right ms-3 -mt-1 flex  px-3 py-1 rounded shadow-md"
             onClick={handleNewTask}
           >
             <PlusIcon className="w-5 h-5 mr-1" />
@@ -288,23 +269,37 @@ function TaskManagement() {
         </div>
 
         <div className="flex gap-2">
-          <select className="form-input text-sm py-1 px-3">
+          <select
+            className="form-input text-sm py-1 px-3"
+            value={filterCaseName}
+            onChange={(e) => setFilterCaseName(e.target.value)}
+          >
             <option>All Cases</option>
-            <option>Smith vs. Anderson</option>
-            <option>Johnson Corporation</option>
-            <option>Wilson Estate</option>
-            <option>Martin Injury</option>
-            <option>Thompson Custody</option>
+            {Array.from(new Set(tasksData?.map((c) => c.title))).map(
+              (title) => (
+                <option key={title}>{title}</option>
+              )
+            )}
           </select>
 
-          <select className="form-input text-sm py-1 px-3">
+          <select
+            className="form-input text-sm py-1 px-3"
+            value={filterUser}
+            onChange={(e) => setFilterUser(e.target.value)}
+          >
             <option>All Users</option>
-            <option>John Doe</option>
-            <option>Jane Smith</option>
-            <option>Mike Brown</option>
+            {Array.from(new Set(tasksData?.map((c) => c.assigned_user))).map(
+              (user) => (
+                <option key={user}>{user}</option>
+              )
+            )}
           </select>
 
-          <select className="form-input text-sm py-1 px-3">
+          <select
+            className="form-input text-sm py-1 px-3"
+            value={filterPriority}
+            onChange={(e) => setFilterPriority(e.target.value)}
+          >
             <option>All Priorities</option>
             <option>High</option>
             <option>Medium</option>
@@ -386,10 +381,10 @@ function TaskManagement() {
                     </div>
 
                     <div className="flex items-center justify-between mt-3">
-                      {task.assignedTo && (
+                      {task.assignTo && (
                         <div className="flex items-center">
                           <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                            {getUserById(task.assignedTo)?.initials}
+                            {getUserById(task.assignTo)?.initials}
                           </div>
                         </div>
                       )}
@@ -404,7 +399,7 @@ function TaskManagement() {
 
                         {column.id !== "completed" && (
                           <button
-                            onClick={() => handleMoveTask(task.id, "Completed")}
+                            onClick={() => handleMoveTask(task.id, "completed")}
                             className="p-1 text-gray-500 hover:text-green-600"
                           >
                             <CheckIcon className="w-4 h-4" />
@@ -415,7 +410,7 @@ function TaskManagement() {
                           column.id !== "completed" && (
                             <button
                               onClick={() =>
-                                handleMoveTask(task.id, "In Progress")
+                                handleMoveTask(task.id, "in-progress")
                               }
                               className="p-1 text-gray-500 hover:text-primary-600"
                             >
@@ -470,7 +465,7 @@ function TaskManagement() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {tasks.map((task) => (
+                {filteredTasks?.map((task) => (
                   <tr key={task.id} className="hover:bg-gray-50">
                     <td className="px-4 py-4">
                       <div className="flex items-start">
@@ -516,10 +511,10 @@ function TaskManagement() {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600 mr-2">
-                          {getUserById(task.assignedTo)?.initials}
+                          {getUserById(task.assignTo)?.initials}
                         </div>
                         <span className="text-sm text-gray-900">
-                          {getUserById(task.assignedTo)?.name}
+                          {getUserById(task.assignTo)?.name}
                         </span>
                       </div>
                     </td>
@@ -584,16 +579,21 @@ function TaskManagement() {
                 e.preventDefault();
                 handleSaveTask();
               }}
+              className="w-full max-w-2xl mx-auto bg-white rounded-2xl"
             >
+              {/* Title */}
               <div className="mb-4">
-                <label className="form-label" htmlFor="title">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Task Title
                 </label>
                 <input
                   type="text"
                   id="title"
                   name="title"
-                  className="form-input"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter task title"
                   value={editingTask ? editingTask.title : newTask.title}
                   onChange={handleInputChange}
@@ -601,124 +601,166 @@ function TaskManagement() {
                 />
               </div>
 
+              {/* Description */}
               <div className="mb-4">
-                <label className="form-label" htmlFor="description">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Description
                 </label>
                 <textarea
                   id="description"
                   name="description"
-                  className="form-input"
                   rows="3"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter task description"
                   value={
                     editingTask ? editingTask.description : newTask.description
                   }
                   onChange={handleInputChange}
-                ></textarea>
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Status & Priority */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="form-label" htmlFor="status">
+                  <label
+                    htmlFor="status"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Status
                   </label>
                   <select
                     id="status"
                     name="status"
-                    className="form-input"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={editingTask ? editingTask.status : newTask.status}
                     onChange={handleInputChange}
                   >
-                    <option>To Do</option>
-                    <option>In Progress</option>
-                    <option>Review</option>
-                    <option>Completed</option>
+                    <option value="to-do">To Do</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="review">Review</option>
+                    <option value="completed">Completed</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="form-label" htmlFor="priority">
+                  <label
+                    htmlFor="priority"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Priority
                   </label>
                   <select
                     id="priority"
                     name="priority"
-                    className="form-input"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={
                       editingTask ? editingTask.priority : newTask.priority
                     }
                     onChange={handleInputChange}
                   >
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
                   </select>
                 </div>
               </div>
 
+              {/* Due Date */}
               <div className="mb-4">
-                <label className="form-label" htmlFor="dueDate">
+                <label
+                  htmlFor="dueDate"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Due Date
                 </label>
                 <input
                   type="date"
                   id="dueDate"
                   name="dueDate"
-                  className="form-input"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={editingTask ? editingTask.dueDate : newTask.dueDate}
                   onChange={handleInputChange}
                 />
               </div>
 
+              {/* Assigned To */}
               <div className="mb-4">
-                <label className="form-label" htmlFor="assignedTo">
+                <label
+                  htmlFor="assignTo"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Assigned To
                 </label>
                 <select
-                  id="assignedTo"
-                  name="assignedTo"
-                  className="form-input"
-                  value={
-                    editingTask ? editingTask.assignedTo : newTask.assignedTo
-                  }
+                  id="assignTo"
+                  name="assignTo"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={editingTask ? editingTask.assignTo : newTask.assignTo}
                   onChange={handleInputChange}
                 >
                   <option value="">Select User</option>
-                  {users.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name}
-                    </option>
-                  ))}
+                  {Array.isArray(members) &&
+                    members?.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.firstname + " " + user.lastname}
+                      </option>
+                    ))}
                 </select>
               </div>
 
-              <div className="mb-4">
-                <label className="form-label" htmlFor="case">
+              {/* Related Case */}
+              <select
+                id="case"
+                name="case"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={editingTask ? editingTask.assignTo : newTask.assignTo}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Case</option>
+                {Array.isArray(cases) &&
+                  cases?.map((cs) => (
+                    <option key={cs.id} value={cs.id}>
+                      {cs.title}
+                    </option>
+                  ))}
+              </select>
+              {/* <div className="mb-6">
+                <label
+                  htmlFor="case"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Related Case
                 </label>
                 <input
                   type="text"
                   id="case"
                   name="case"
-                  className="form-input"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter related case"
                   value={editingTask ? editingTask.case : newTask.case}
                   onChange={handleInputChange}
                 />
-              </div>
+              </div> */}
 
-              <div className="flex justify-end space-x-2">
+              {/* Buttons */}
+              <div className="flex justify-end gap-3 mt-5">
                 <button
                   type="button"
                   onClick={() => {
                     setShowTaskModal(false);
                     setEditingTask(null);
                   }}
-                  className="btn btn-outline"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                >
                   {editingTask ? "Update Task" : "Create Task"}
                 </button>
               </div>

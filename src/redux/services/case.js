@@ -36,6 +36,38 @@ export const addCaseApi = (token, formData) => async (dispatch) => {
     dispatch(invalidRequest(e.message));
   }
 };
+export const updateCaseApi = (token, formData, caseId) => async (dispatch) => {
+  try {
+    dispatch(caseRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.put(
+      `${backendURL}/cases/${caseId}`,
+      formData,
+      config
+    );
+    if (!response.data.statusCode === 200) {
+      dispatch(invalidRequest(response.data.message));
+      toast.error(response.data.message);
+      return {
+        success: false,
+        message: response.data.message,
+      };
+    }
+    dispatch(getUserCases(response.data.data.cases));
+    toast.success(response.data.message);
+    return {
+      success: true,
+      message: response.data.message,
+    };
+  } catch (e) {
+    dispatch(invalidRequest(e.message));
+  }
+};
 export const getUserCasesApi = (token, userId) => async (dispatch) => {
   try {
     dispatch(caseRequestLoading());

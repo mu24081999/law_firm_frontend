@@ -85,6 +85,29 @@ function Dashboard() {
               }
             />
             <Route
+              path="/payroll/employees/:id"
+              element={
+                <PrivateRoute
+                  isAuthenticated={isAuthenticated}
+                  isSubscribed={
+                    getLatestValidSubscription(user?.subscriptions)?.isValid
+                  }
+                  subscriptionStatus={
+                    getLatestValidSubscription(user?.subscriptions)
+                      ?.latestSubscription?.subscriptionReciept?.status ===
+                    "confirm"
+                      ? "active"
+                      : "pending"
+                  }
+                  // subscription={}
+                  emailVerified={user?.verified}
+                  loading={isLoading}
+                >
+                  <EmployeeDetail />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/payroll/employees"
               element={
                 <PrivateRoute

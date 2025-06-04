@@ -249,7 +249,7 @@ function Employees() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link
-                      to={`/employees/${employee.id}`}
+                      to={`/lawfirm/payroll/employees/${employee.id}`}
                       className="text-primary-600 hover:text-primary-900 mr-3"
                     >
                       View

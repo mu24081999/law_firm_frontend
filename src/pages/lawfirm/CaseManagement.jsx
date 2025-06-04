@@ -13,25 +13,39 @@ import {
 import CaseForm from "./caseManagementComponents/CaseForm";
 import Modal from "../../components/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { addCaseApi, getUserCasesApi } from "../../redux/services/case";
+import {
+  addCaseApi,
+  getUserCasesApi,
+  updateCaseApi,
+} from "../../redux/services/case";
 import CaseDetails from "./caseManagementComponents/CaseDetails";
 
 function CaseManagement() {
   const { user, token } = useSelector((state) => state.auth);
   const { cases: caseData } = useSelector((state) => state.case);
   const dispatch = useDispatch();
-  const [selectedTab, setSelectedTab] = useState("active");
+  const [selectedTab, setSelectedTab] = useState("all");
   const [selectedCase, setSelectedCase] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("All Types");
+
   // Mock case data
 
-  // Filter cases based on selected tab
   const filteredCases = caseData?.filter((caseItem) => {
-    if (selectedTab === "open") return caseItem.status === "open";
-    if (selectedTab === "on-hold") return caseItem.status === "on-hold";
-    if (selectedTab === "closed") return caseItem.status === "closed";
-    return true; // 'all' tab
+    const matchTab = selectedTab === "all" || caseItem.status === selectedTab;
+
+    const matchSearch =
+      caseItem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      caseItem.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      caseItem.case_number?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchType =
+      selectedType === "All Types" || caseItem.case_type === selectedType;
+
+    return matchTab && matchSearch && matchType;
   });
+
   const handleOnSubmitCase = (data) => {
     console.log("Submitted Case Data:", data);
     const params = {
@@ -39,8 +53,10 @@ function CaseManagement() {
       userId: user?.id,
       notes: [data?.notes],
     };
-    dispatch(addCaseApi(token, params));
-    // setIsOpen(false);
+    selectedCase
+      ? dispatch(updateCaseApi(token, params, selectedCase?.id))
+      : dispatch(addCaseApi(token, params));
+    setIsOpen(false);
   };
   useEffect(() => {
     dispatch(getUserCasesApi(token, user?.id));
@@ -70,17 +86,22 @@ function CaseManagement() {
             type="text"
             placeholder="Search cases..."
             className="ml-2 flex-1 bg-transparent border-none focus:outline-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-
         <div className="flex gap-2">
-          <button className="btn btn-outline inline-flex items-center">
+          {/* <button className="btn btn-outline inline-flex items-center bg-white p-2 rounded">
             <FunnelIcon className="w-5 h-5 mr-1" />
             Filter
             <ChevronDownIcon className="w-4 h-4 ml-1" />
-          </button>
+          </button> */}
 
-          <select className="form-input px-3 py-2 pr-8 bg-white">
+          <select
+            className="form-input px-3 py-2 pr-8 bg-white"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
             <option>All Types</option>
             <option>Family Law</option>
             <option>Corporate</option>
@@ -138,11 +159,11 @@ function CaseManagement() {
 
       {/* Cases list */}
       {filteredCases?.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-4 bg-white rounded">
           {filteredCases?.map((caseItem) => (
             <Card
               key={caseItem?.id}
-              className="p-0 overflow-hidden hover:shadow-lg transition-shadow"
+              className="p-0 overflow-hidden hover:shadow- border transition-shadow"
             >
               <div className="p-5">
                 <div className="flex items-start justify-between">
@@ -166,7 +187,9 @@ function CaseManagement() {
                 <div className="mt-4">
                   <h4 className="text-sm font-medium text-gray-800">Notes:</h4>
                   <p className="mt-1 text-sm text-gray-600">
-                    {caseItem?.notes?.[0]}
+                    {typeof caseItem?.notes === "string"
+                      ? JSON.parse(caseItem?.notes)?.[0]
+                      : caseItem?.notes?.[0]}
                   </p>
                 </div>
               </div>
@@ -215,11 +238,14 @@ function CaseManagement() {
           title={selectedCase ? "Case Details" : "New Case"}
           size={selectedCase ? "xl" : "md"}
           body={
-            selectedCase ? (
-              <CaseDetails data={selectedCase} />
-            ) : (
-              <CaseForm onSubmit={handleOnSubmitCase} />
-            )
+            // selectedCase ? (
+            //   <CaseDetails data={selectedCase} />
+            // ) : (
+            <CaseForm
+              onSubmit={handleOnSubmitCase}
+              selectedCase={selectedCase}
+            />
+            // )
           }
         />
       </div>

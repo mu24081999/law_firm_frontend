@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import DynamicFormBuilder from "../../components/Steps/DynamicForm";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateServicePermissionApi } from "../../../redux/services/service";
 const ServiceAccordion = ({
   servicesData,
   handleServiceChange,
   handleSaveSettings,
 }) => {
+  const { token, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [expandedIndex, setExpandedIndex] = useState(null);
   const nonEditableServices = [
@@ -20,8 +22,18 @@ const ServiceAccordion = ({
   const isServiceEditable = (name) => {
     return !nonEditableServices.includes(name);
   };
-  const updateService = () => {
-    dispatch(updateService);
+  const updateService = (perm_id, value, serviceId) => {
+    dispatch(
+      updateServicePermissionApi(
+        token,
+        {
+          userId: user?.id,
+          serviceId: serviceId,
+          enabled: value,
+        },
+        perm_id
+      )
+    );
   };
   return (
     <div className="space-y-6">
@@ -67,15 +79,14 @@ const ServiceAccordion = ({
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={service?.allowed}
-                      // onChange={(e) => {
-                      //   handleServiceChange(
-                      //     service.id,
-                      //     service?.customServiceFields?.[0]?.id,
-                      //     "allowed",
-                      //     e.target.checked
-                      //   );
-                      // }}
+                      checked={service?.servicePermission?.enabled}
+                      onChange={(e) => {
+                        updateService(
+                          service?.servicePermission?.id,
+                          e.target.checked,
+                          service?.id
+                        );
+                      }}
                       className="sr-only peer"
                     />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
