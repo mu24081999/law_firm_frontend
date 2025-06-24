@@ -30,7 +30,16 @@ function AdminLayout({ children }) {
       path: "/admin/law-firms",
       icon: <BuildingOfficeIcon className="w-5 h-5" />,
     },
-
+    {
+      name: "User Permissions",
+      path: "/admin/user-permissions",
+      icon: <BuildingOfficeIcon className="w-5 h-5" />,
+    },
+    {
+      name: "Default Templates",
+      path: "/admin/default-templates",
+      icon: <BuildingOfficeIcon className="w-5 h-5" />,
+    },
     // {
     //   name: "Settings",
     //   path: "/admin/settings",

@@ -236,7 +236,7 @@ function CaseManagement() {
             setSelectedCase(null);
           }}
           title={selectedCase ? "Case Details" : "New Case"}
-          size={selectedCase ? "xl" : "md"}
+          size={"xl"}
           body={
             // selectedCase ? (
             //   <CaseDetails data={selectedCase} />

@@ -127,9 +127,11 @@ const CaseForm = ({ onSubmit, selectedCase }) => {
             onChange={handleChange}
             className="w-full p-2 border rounded-md"
           >
+            <option value="Civil">Family Law</option>
+            <option value="Civil">Corporate</option>
             <option value="Civil">Civil</option>
             <option value="Criminal">Criminal</option>
-            <option value="Arbitration">Arbitration</option>
+            <option value="Arbitration">Property</option>
             <option value="Other">Other</option>
           </select>
         </div>

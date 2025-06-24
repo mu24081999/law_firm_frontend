@@ -6,12 +6,13 @@ import {
   getUserSubaccounts,
   getUsers,
   getNotifications,
+  getPermissions,
 } from "../slices/users";
 import { toast } from "react-toastify";
 import { updateMe as updateUser } from "../slices/auth";
 const backendURL = import.meta.env.VITE_API_URL;
 
-export const getUsersApi = (token) => async (dispatch) => {
+export const getUsersApi = (token, query) => async (dispatch) => {
   try {
     dispatch(userRequestLoading());
     const config = {
@@ -20,7 +21,10 @@ export const getUsersApi = (token) => async (dispatch) => {
         "x-access-token": token,
       },
     };
-    const response = await axios.get(`${backendURL}/users`, config);
+    const response = await axios.get(
+      `${backendURL}/users?${query && query}`,
+      config
+    );
     if (response.data.statusCode !== 200) {
       dispatch(invalidRequest(response.data.message));
       return toast.error(response.data.message);
@@ -173,6 +177,30 @@ export const getUserSubaccountsApi = (token, user_id) => async (dispatch) => {
       return toast.error(response.data.message);
     }
     dispatch(getUserSubaccounts(response.data.data.users));
+  } catch (e) {
+    dispatch(invalidRequest(e.message));
+  }
+};
+export const upsertPermission = (token, formData) => async (dispatch) => {
+  try {
+    dispatch(userRequestLoading());
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    };
+    const response = await axios.post(
+      `${backendURL}/permissions/upsert`,
+      formData,
+      config
+    );
+    if (response.data.statusCode !== 200) {
+      dispatch(invalidRequest(response.data.message));
+      return toast.error(response.data.message);
+    }
+    dispatch(getPermissions(response.data.data.permissions));
+    toast.success(response.data.message);
   } catch (e) {
     dispatch(invalidRequest(e.message));
   }

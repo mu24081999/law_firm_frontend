@@ -7,6 +7,7 @@ export const authSlice = createSlice({
     isLoading: false,
     user: {},
     users: [],
+    permissions: {},
     notifications: [],
     message: "",
     error: "",
@@ -68,6 +69,10 @@ export const authSlice = createSlice({
       state.notifications = action.payload;
       state.isLoading = false;
     },
+    getPermissions: (state, action) => {
+      state.permissions = action.payload;
+      state.isLoading = false;
+    },
   },
 });
 
@@ -82,4 +87,5 @@ export const {
   getUserSubaccounts,
   getUsers,
   getNotifications,
+  getPermissions,
 } = authSlice.actions;

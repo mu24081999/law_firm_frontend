@@ -27,8 +27,6 @@ const KanbanWithLeads = () => {
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
   const { members } = useSelector((state) => state.team);
-  console.log("🚀 ~ KanbanWithLeads ~ members:", members);
-
   const { boards: boardsData, leads } = useSelector((state) => state.board);
   const [boards, setBoards] = useState([]);
   const [view, setView] = useState("kanban");
@@ -52,9 +50,10 @@ const KanbanWithLeads = () => {
       )
     );
     const params = {
+      ...newLead,
       boardId: selectedBoard?.id,
       userId: user?.id,
-      ...newLead,
+      assignTo: newLead?.assignTo === "" ? "nill" : newLead?.assignTo,
     };
     dispatch(addLeadApi(token, params));
     // Reset all lead fields
@@ -126,8 +125,6 @@ const KanbanWithLeads = () => {
 
       if (activeBoardId === overBoardId) {
         const leads = updatedBoards[overBoardIndex]?.leads || [];
-        console.log("🚀 ~ handleDragEnd ~ leads:", leads);
-
         if (
           Array.isArray(leads) &&
           activeItemIndex >= 0 &&
@@ -143,11 +140,11 @@ const KanbanWithLeads = () => {
         }
         console.log("🚀 ~ handleDragEnd ~ leads:", leads);
       } else {
-        // updatedBoards[overBoardIndex].leads.splice(
-        //   overItemIndex >= 0 ? overItemIndex : 0,
-        //   0,
-        //   item
-        // );
+        updatedBoards[overBoardIndex].leads.splice(
+          overItemIndex >= 0 ? overItemIndex : 0,
+          0,
+          item
+        );
         const itemId = item?.id;
         const params = {
           userId: user?.id,
@@ -155,7 +152,6 @@ const KanbanWithLeads = () => {
         };
         dispatch(updateLead(token, params, itemId));
       }
-
       setBoards(updatedBoards);
     }
   };
@@ -313,12 +309,12 @@ const KanbanWithLeads = () => {
             <Modal
               isOpen={isOpen}
               onClose={() => setIsOpen(false)}
-              title="Add Lead"
+              title="Lead Form"
               noStartMargin={true}
-              size="sm"
+              size="md"
               body={
                 <div className="w-full bg-white space-y-4">
-                  <div className=" flex flex-col gap-4">
+                  <div className=" grid lg:grid-cols-2 sm:grid-cols-1 gap-4">
                     <input
                       type="text"
                       placeholder="Lead Name"

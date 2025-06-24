@@ -78,179 +78,184 @@ const InvoiceForm = ({ onSubmit, clients }) => {
     });
   };
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white shadow-lg rounded-lg p-6  space-y-4 mx-auto"
-    >
+    <>
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">
         Create Monthly Invoice
       </h2>
-      <label className="block">
-        <span className="text-gray-700">Client</span>
-        <select
-          className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.client ? "border-red-500" : "border-gray-300"
-          }`}
-          name="client"
-          value={formData.clientId} // Assuming you're tracking the selected client
-          onChange={(e) => {
-            const selectedClientId = e.target.value;
-            const selectedClient = clients.find(
-              (c) => c.id === selectedClientId
-            );
-            handleSelectClient(selectedClient);
-          }}
-        >
-          <option value="">Select a client</option>
-          {clients?.map((client) => (
-            <option key={client.id} value={client.id}>
-              {client.firstname + " " + client.lastname}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="block">
-        <span className="text-gray-700">Invoice Number</span>
-        <input
-          type="text"
-          name="invoiceNo"
-          value={formData.invoiceNo}
-          onChange={handleChange}
-          className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.invoiceNo ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.invoiceNo && (
-          <p className="text-red-600 text-sm mt-1">{errors.invoiceNo}</p>
-        )}
-      </label>
-
-      <label className="block">
-        <span className="text-gray-700">Client Name</span>
-        <input
-          type="text"
-          name="clientName"
-          value={selectedClient?.firstname + " " + selectedClient?.lastname}
-          onChange={handleChange}
-          className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.clientName ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.clientName && (
-          <p className="text-red-600 text-sm mt-1">{errors.clientName}</p>
-        )}
-      </label>
-      <label className="block">
-        <span className="text-gray-700">Phone Number</span>
-        <PhoneInput
-          country={"pk"}
-          value={formData.phone}
-          onChange={(phone) => {
-            console.log(phone);
-            setFormData((prev) => ({ ...prev, phone }));
-          }}
-          containerClass="w-full"
-          inputClass={`w-full h-10 py-2 pl-10 pr-3 rounded-md border ${
-            errors.phone ? "border-red-500" : "border-gray-300"
-          } focus:outline-none`}
-          inputStyle={{
-            width: "100%",
-            height: "43px",
-            borderRadius: "0.375rem",
-            border: errors.phone ? "1px solid red" : "1px solid #D1D5DB",
-            padding: "0.5rem",
-          }}
-          buttonClass="border-r border-gray-300"
-        />
-
-        {errors.phone && (
-          <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
-        )}
-      </label>
-
-      <label className="block">
-        <span className="text-gray-700">Case</span>
-        <input
-          type="text"
-          name="case"
-          value={formData.case}
-          onChange={handleChange}
-          className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.case ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.case && (
-          <p className="text-red-600 text-sm mt-1">{errors.case}</p>
-        )}
-      </label>
-
-      <label className="block">
-        <span className="text-gray-700">Due Date</span>
-        <input
-          type="date"
-          name="dueDate"
-          value={formData.dueDate}
-          onChange={handleChange}
-          className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.dueDate ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.dueDate && (
-          <p className="text-red-600 text-sm mt-1">{errors.dueDate}</p>
-        )}
-      </label>
-
-      <label className="block">
-        <span className="text-gray-700">Amount (USD)</span>
-        <input
-          type="number"
-          name="amount"
-          value={formData.amount}
-          onChange={handleChange}
-          min="0"
-          step="0.01"
-          className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.amount ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.amount && (
-          <p className="text-red-600 text-sm mt-1">{errors.amount}</p>
-        )}
-      </label>
-
-      <label className="block">
-        <span className="text-gray-700">Description (optional)</span>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          rows="3"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </label>
-
-      {/* Optional: Status dropdown if you want to allow selecting status manually */}
-      <label className="block">
-        <span className="text-gray-700">Status</span>
-        <select
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="paid">Paid</option>
-          <option value="unpaid">Unpaid</option>
-        </select>
-      </label>
-
-      <button
-        type="submit"
-        className="w-32 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg grid lg:grid-cols-2 sm:grid-cols-1 gap-5 rounded-lg p-6  space-y-4 mx-auto"
       >
-        Create Invoice
-      </button>
-    </form>
+        <label className="block pt-4">
+          <span className="text-gray-700">Client</span>
+          <select
+            className={`mt-1 block h-11 w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.client ? "border-red-500" : "border-gray-300"
+            }`}
+            name="client"
+            value={formData.clientId} // Assuming you're tracking the selected client
+            onChange={(e) => {
+              const selectedClientId = e.target.value;
+              const selectedClient = clients.find(
+                (c) => c.id === selectedClientId
+              );
+              handleSelectClient(selectedClient);
+            }}
+          >
+            <option value="">Select a client</option>
+            {clients?.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.firstname + " " + client.lastname}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="text-gray-700">Invoice Number</span>
+          <input
+            type="text"
+            name="invoiceNo"
+            value={formData.invoiceNo}
+            onChange={handleChange}
+            className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.invoiceNo ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.invoiceNo && (
+            <p className="text-red-600 text-sm mt-1">{errors.invoiceNo}</p>
+          )}
+        </label>
+
+        <label className="block">
+          <span className="text-gray-700">Client Name</span>
+          <input
+            type="text"
+            name="clientName"
+            value={
+              selectedClient?.firstname !== undefined
+                ? selectedClient?.firstname
+                : ""
+            }
+            onChange={handleChange}
+            className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.clientName ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.clientName && (
+            <p className="text-red-600 text-sm mt-1">{errors.clientName}</p>
+          )}
+        </label>
+        <label className="block">
+          <span className="text-gray-700">Phone Number</span>
+          <PhoneInput
+            country={"pk"}
+            value={formData.phone}
+            onChange={(phone) => {
+              console.log(phone);
+              setFormData((prev) => ({ ...prev, phone }));
+            }}
+            containerClass="w-full"
+            inputClass={`w-full h-10 py-2 pl-10 pr-3 rounded-md border ${
+              errors.phone ? "border-red-500" : "border-gray-300"
+            } focus:outline-none`}
+            inputStyle={{
+              width: "100%",
+              paddingLeft: "2.6rem",
+              height: "43px",
+              borderRadius: "0.375rem",
+              border: errors.phone ? "1px solid red" : "1px solid #D1D5DB",
+            }}
+            buttonClass="border-r border-gray-300"
+          />
+
+          {errors.phone && (
+            <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+          )}
+        </label>
+
+        <label className="block">
+          <span className="text-gray-700">Case</span>
+          <input
+            type="text"
+            name="case"
+            value={formData.case}
+            onChange={handleChange}
+            className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.case ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.case && (
+            <p className="text-red-600 text-sm mt-1">{errors.case}</p>
+          )}
+        </label>
+
+        <label className="block">
+          <span className="text-gray-700">Due Date</span>
+          <input
+            type="date"
+            name="dueDate"
+            value={formData.dueDate}
+            onChange={handleChange}
+            className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.dueDate ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.dueDate && (
+            <p className="text-red-600 text-sm mt-1">{errors.dueDate}</p>
+          )}
+        </label>
+
+        <label className="block">
+          <span className="text-gray-700">Amount (USD)</span>
+          <input
+            type="number"
+            name="amount"
+            value={formData.amount}
+            onChange={handleChange}
+            min="0"
+            step="0.01"
+            className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.amount ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.amount && (
+            <p className="text-red-600 text-sm mt-1">{errors.amount}</p>
+          )}
+        </label>
+
+        {/* Optional: Status dropdown if you want to allow selecting status manually */}
+        <label className="block">
+          <span className="text-gray-700">Status</span>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+        </label>
+        <label className="block col-span-2">
+          <span className="text-gray-700">Description (optional)</span>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="3"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </label>
+
+        <button
+          type="submit"
+          className="w-32 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Create Invoice
+        </button>
+      </form>
+    </>
   );
 };
 
